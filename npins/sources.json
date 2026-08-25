@@ -1,0 +1,41 @@
+{
+  "pins": {
+    "nixpkgs": {
+      "type": "Channel",
+      "name": "nixpkgs-unstable",
+      "artifact": "nixexprs.tar.xz",
+      "url": "https://releases.nixos.org/nixpkgs/nixpkgs-26.11pre1038038.421eebfd0ec7/nixexprs.tar.xz",
+      "hash": "sha256-x8Suc10wDlysPVmLWoyifgL7p2wDoQbqRXU5r+qiTgo="
+    },
+    "press": {
+      "type": "GitRelease",
+      "repository": {
+        "type": "GitHub",
+        "owner": "rosssmyth",
+        "repo": "press"
+      },
+      "pre_releases": false,
+      "version_upper_bound": null,
+      "release_prefix": null,
+      "submodules": false,
+      "version": "2.4",
+      "revision": "4ff229ab97a32df76027c82da12e63570ddac15c",
+      "url": "https://api.github.com/repos/rosssmyth/press/tarball/refs/tags/2.4",
+      "hash": "sha256-owjnKHmqqCsvR5qVOolFj63tByUxFJl8fszCif7M0l4="
+    },
+    "vscode-ext-hook": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "blokyk",
+        "repo": "vscode-ext-hook"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "6a15acc954e4d580c5681eba6aa77d29ff197f89",
+      "url": "https://github.com/blokyk/vscode-ext-hook/archive/6a15acc954e4d580c5681eba6aa77d29ff197f89.tar.gz",
+      "hash": "sha256-ccPqBii/9dMd+2nj++nlPy7UEs2zBypAVXDuIVt1c28="
+    }
+  },
+  "version": 8
+}
