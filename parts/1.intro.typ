@@ -2,6 +2,8 @@
 
 == Le laboratoire d'accueil: TIMA
 
+J'ai effectué mon stage dans l'enceinte du laboratoire TIMA. Situé au centre de Grenoble, il résulte d'une alliance entre le CNRS, Grenoble-INP, l'UGA, et l'INRIA. Il se penche sur la spécification, conception, et vérification de systèmes embarqués, de simples composants discrets jusqu'aux Systems-On-Chip multicoeurs et leurs systèmes d'exploitations.
+
 - copie de https://tima.univ-grenoble-alpes.fr/laboratory
 
 == Contexte du stage

@@ -5,6 +5,9 @@
 - gem5 est le mariage entre un simulateur micro-architectural (m5) et un simulateur de mémoire (gems)
 - beaucoup de petits scripts aussi mais docs un peu manquantes et logiciel généralement bien plus hacky
 - gem5 n'est pas un émulateur à-la qemu qui exécute juste les instructions, mais plutôt un système entier qui a pour but de simuler les communications entre chaque composants (macro- et micro-architecturaux)
+  - petit diagramme avec:
+    - une cpu, qui contient:
+      - plusieurs coeurs, chacun connectés
 - donc une simulation gem5 commence par une description/config d'un système spécifique avec eg @gem5-dram-controller et @gem5-riscv-interrupts
 
 == ???

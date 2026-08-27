@@ -12,9 +12,10 @@
 
 #pagebreak()
 
-// add a page number in the footer, and start counter from here
+// add a page number in the footer, and start page counter from here
 #set page(
-  header: context [ // reset the footnote numbers every page
+  header: context [
+    // reset the footnote numbers every page
     #counter(footnote).update(0)
   ],
   footer: context [

@@ -1,6 +1,8 @@
-= conception <design>
+#set text(lang: "fr")
 
-- en réalité, s'attendre à ce que l'utilisateur annote manuellement chaque load c'est un peu trop demandé
+= Conception <design>
+
+- en réalité, s'attendre à ce que l'utilisateur annote manuellement chaque load c'est un peu trop demander
   - en plus, il y a souvent des loads "cachés" que l'utilisateur ne contrôle pas forcément
 - pour ça, on fait plutôt confiance au compilateur pour détecter les opportunités
   - c'est une optimisation plutôt locale donc plus facile pour le compilo à détecter
