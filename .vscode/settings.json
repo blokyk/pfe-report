@@ -1,8 +1,13 @@
 {
+    // disable cSpell since we have languagetool instead
+    "cSpell.enabled": false,
     "cSpell.words": [
         "betteraw",
         "coeurs",
         "esisar",
+        "instrs",
+        "multicoeur",
+        "multicoeurs",
         "pagebreak",
         "PERAIS",
         "tima"

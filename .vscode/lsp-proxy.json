@@ -1,0 +1,37 @@
+[
+  {
+    "languageId": "typst",
+    "command": "typst-languagetool-lsp",
+    "fileExtensions": [
+      ".typ"
+    ],
+    "initializationOptions": {
+      "backend": "server",
+      "host": "https://lgtl.zoeee.net",
+      "port": 443,
+
+      "main": "main.typ",
+      "dictionary": {
+        "fr": [
+          "codesign",
+          "load",
+          "loads",
+          "madmax",
+          "TIMA",
+          "betteraw",
+          "coeurs",
+          "esisar",
+          "instrs",
+          "multicoeur",
+          "multicoeurs",
+          "pagebreak",
+          "PERAIS",
+          "tima",
+          ""
+        ]
+      },
+
+      "languages": { "fr": "fr-FR" }
+    }
+  }
+]

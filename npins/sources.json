@@ -35,6 +35,19 @@
       "revision": "6a15acc954e4d580c5681eba6aa77d29ff197f89",
       "url": "https://github.com/blokyk/vscode-ext-hook/archive/6a15acc954e4d580c5681eba6aa77d29ff197f89.tar.gz",
       "hash": "sha256-ccPqBii/9dMd+2nj++nlPy7UEs2zBypAVXDuIVt1c28="
+    },
+    "zpkgs": {
+      "type": "Git",
+      "repository": {
+        "type": "GitHub",
+        "owner": "blokyk",
+        "repo": "packages.nix"
+      },
+      "branch": "main",
+      "submodules": false,
+      "revision": "816d066f13c865950d17e8e6fbb6e9378ee2913b",
+      "url": "https://github.com/blokyk/packages.nix/archive/816d066f13c865950d17e8e6fbb6e9378ee2913b.tar.gz",
+      "hash": "sha256-FKNfdArfhv0j+mq4mwiW/YnZNmvAgXPzMjs2qqE+6qE="
     }
   },
   "version": 8
