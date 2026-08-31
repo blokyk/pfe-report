@@ -26,8 +26,9 @@
     )
   ]
 )
-// avoid counting the cover page
-#counter(page).update(1)
+
+// // avoid counting the cover page
+// #counter(page).update(1)
 
 // every heading from this point on should be outlined
 #set heading(outlined: true, numbering: "1.1.")
