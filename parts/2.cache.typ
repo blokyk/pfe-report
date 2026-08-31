@@ -14,6 +14,7 @@
   - chaque coeurs a moins de place (ce qui est un problème quand ils ne font pas la même chose, ce qui est souvent le cas)
 - sauf que, si on essaie d'avoir des caches individuels, maintenant on a des problèmes quand on écrit
   - [petit diagramme pour expliquer]
+  - exemple avec `struct list { int generation; int* data; }` (cf https://docs.kernel.org/kernel-hacking/false-sharing.html)
 
 == La communication, c'est important
 

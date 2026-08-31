@@ -33,7 +33,7 @@
 #set heading(outlined: true, numbering: "1.1.")
 
 #include "parts/1.intro.typ"
-#include "parts/2.context.typ"
+#include "parts/2.cache.typ"
 #include "parts/3.design.typ"
 #include "parts/4.llvm.typ"
 #include "parts/5.gem5.typ"
