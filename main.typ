@@ -18,6 +18,7 @@
     // reset the footnote numbers every page
     #counter(footnote).update(0)
   ],
+  numbering: "1",
   footer: context [
     Zoë Courvoisier-Clément
     #h(1fr)
