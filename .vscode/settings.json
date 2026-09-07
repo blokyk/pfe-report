@@ -11,5 +11,7 @@
         "pagebreak",
         "PERAIS",
         "tima"
-    ]
+    ],
+    "editor.wordBasedSuggestions": "off",
+    "tinymist.projectResolution": "lockDatabase",
 }
