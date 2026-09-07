@@ -1,3 +1,5 @@
+#import "/utils.typ": *
+
 = gem5 <sec_gem5>
 
 Comme mentionné dans la @sec_design_hw, le côté "hardware" de ce projet ne pouvait, en pratique, pas être testé sur du vrai matériel. Ainsi, pour la simulation, le simulateur gem5 @gem5-src @gem5-src-20 était un choix évident. Cependant, c'est bien plus qu'un simple émulateur, et sa prise en main a été une partie majeure de mon stage.
@@ -21,13 +23,19 @@ Bien sûr, il y a une myriade de manières de concevoir un processeur, donc gem5
   - *`MinorCPU`*, simulant également un processeur "in-order", mais son modèle d'exécution offre une bien meilleure flexibilité de configuration, permettant d'approximer le fonctionnement interne d'une grande quantité de CPUs réelles ainsi que d'explorer de nouvelles techniques de conception.
   - *`O3CPU`*, simulant un processeur "out-of-order" (aka OoO, aka O3), avec un modèle d'exécution et de timing extrêmement détaillé, mais moins de customisation
 
+Chacun de ces modèles (et bien d'autres non mentionnés) sont implémentés en C++ et faits pour être facilement modifiables. Pour pouvoir modéliser au mieux les communications entre chaque composant micro-architectural, ces implémentations sont constituées d'objets indépendants et interchangeables, qui échangent des paquets, des messages, des signaux, qui utilisent des files d'attentes, qui peuvent seulement prendre un nombre limité d'actions par cycle, etc. La @fig_gem5_cpu démontre les différents types de communications et d'intégrations entre les composants qui forment un coeur de CPU.
 
+#figure(
+  caption: [Représentation simplifiée des échanges entre composants d'un coeur dans gem5]
+)[
+  - petit diagramme avec:
+  - une cpu, qui contient:
+    - plusieurs coeurs, chacun connectés
+] <fig_gem5_cpu>
+
+gem5 encourage les modifications et configurations _in-tree_, c'est-à-dire directement à l'intérieur de la base de code plutôt que dans un projet isolé, bla bla python blabla scripts internes blabla spaghetti
 
 - beaucoup de petits scripts aussi mais docs un peu manquantes et logiciel généralement bien plus hacky
-- gem5 n'est pas un émulateur à-la qemu qui exécute juste les instructions, mais plutôt un système entier qui a pour but de simuler les communications entre chaque composant (macro- et micro-architecturaux)
-  - petit diagramme avec:
-    - une cpu, qui contient:
-      - plusieurs coeurs, chacun connectés
 - donc une simulation gem5 commence par une description/config d'un système spécifique avec eg @gem5-dram-controller et @gem5-riscv-interrupts
 
 == ???

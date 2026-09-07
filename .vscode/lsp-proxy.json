@@ -38,6 +38,7 @@
           "gem5",
           "CPUs",
           "CPU",
+          "coeur",
           ""
         ]
       },
