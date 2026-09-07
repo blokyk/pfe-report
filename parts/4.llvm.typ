@@ -1,8 +1,8 @@
-= llvm <llvm>
+= llvm <sec_llvm>
 
 == que désigne vraiment "LLVM"
 
-- une collection de composants qui agissent à différentes étapes de la pipeline de compilation (cf @design)
+- une collection de composants qui agissent à différentes étapes de la pipeline de compilation (cf @sec_design)
 - un très bon outillage inter-projet (e.g. tablegen, llvm-lit, utils pour printf-debug facilement)
 
 == ajouter une instruction

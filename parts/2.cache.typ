@@ -1,6 +1,6 @@
 #import "/utils.typ": *
 
-= La cohérence de cache <cache_coherency>
+= La cohérence de cache <sec_cache_coherency>
 
 == Qu'est-ce qu'un cache ?
 

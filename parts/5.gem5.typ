@@ -1,6 +1,6 @@
-= gem5 <gem5>
+= gem5 <sec_gem5>
 
-Comme mentionné dans la @design_hw, le côté "hardware" de ce projet ne pouvait, en pratique, pas être testé sur du vrai matériel. Ainsi, pour la simulation, le simulateur gem5 @gem5-src @gem5-src-20 était un choix évident. Cependant, c'est bien plus qu'un simple émulateur, et sa prise en main a été une partie majeure de mon stage.
+Comme mentionné dans la @sec_design_hw, le côté "hardware" de ce projet ne pouvait, en pratique, pas être testé sur du vrai matériel. Ainsi, pour la simulation, le simulateur gem5 @gem5-src @gem5-src-20 était un choix évident. Cependant, c'est bien plus qu'un simple émulateur, et sa prise en main a été une partie majeure de mon stage.
 
 == Le Zen de gem5
 

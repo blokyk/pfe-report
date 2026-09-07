@@ -1,6 +1,6 @@
 #import "/utils.typ": *
 
-= Conception <design>
+= Conception <sec_design>
 
 == #todo[Entrées de dev]
 
@@ -44,7 +44,7 @@ note: je sais pas si c'est vraiment une bonne idée de mettre ça ici, vu que c'
     - c'est aussi assez dur à compute
 - étant donné qu'AA est dur et pas précis, cette approche est très naïve, mais c'est un PoC
 
-== maintenant, on passe le relai au hardware <design_hw>
+== maintenant, on passe le relai au hardware <sec_design_hw>
 
 - ...en pratique, on utilise un simulateur parce que beaucoup plus facile que le hardware
   - on aurait pu utiliser un truc genre verilator mais à peu près aussi galère que du vrai hardware
