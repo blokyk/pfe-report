@@ -38,9 +38,12 @@
           "gem5",
           "CPUs",
           "CPU",
-          "coeur",
           ""
         ]
+      },
+
+      "disabled_checks": {
+        "fr": [ "OE" ]
       },
 
       "ignore_functions": [

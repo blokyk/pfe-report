@@ -12,6 +12,7 @@
 
   // headings should be serif
   show heading.where(outlined: true): set text(font: "Libertinus Serif")
+  set heading(supplement: "Section")
 
   set enum(indent: 1em)
   set scale(reflow: true) // by default, layout with scaled size, not original one
@@ -69,9 +70,10 @@
   show figure.caption: set par(justify: false)
   // show figure.caption: box.with(width: 80%)
 
-  show "oe": "\u{0153}"
+  // prevent figures from floating out of their sections
+  show heading: it => [#place.flush() #it]
 
-  set heading(supplement: "Section")
+  show "oe": "\u{0153}"
 
   doc
 }

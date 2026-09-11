@@ -33,9 +33,10 @@ Chacun de ces modèles (et bien d'autres non mentionnés) sont implémentés en 
     - plusieurs coeurs, chacun connectés
 ] <fig_gem5_cpu>
 
-gem5 encourage les modifications et configurations _in-tree_, c'est-à-dire directement à l'intérieur de la base de code plutôt que dans un projet isolé, bla bla python blabla scripts internes blabla spaghetti
+gem5 encourage les modifications et configurations _in-tree_, c'est-à-dire directement à l'intérieur de la base de code plutôt que dans un projet isolé, bla bla python (mais quand même besoin de toucher à c++ pour certains trucs) blabla scripts internes blabla spaghetti
 
 - beaucoup de petits scripts aussi mais docs un peu manquantes et logiciel généralement bien plus hacky
+  - peut-être montrer #link("https://scons.org/doc/production/HTML/scons-user/ch28s03.html")[un graphe de dépendances scons?]
 - donc une simulation gem5 commence par une description/config d'un système spécifique avec eg @gem5-dram-controller et @gem5-riscv-interrupts
 
 == ???

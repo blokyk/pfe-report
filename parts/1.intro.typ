@@ -8,7 +8,7 @@ J'ai effectué mon stage dans l'enceinte du laboratoire TIMA. Situé au centre d
 
 Ce stage s'est déroulé au sein de l'équipe MADMAX, sous la supervision de Julie Dumas et Arthur Perais. Un des piliers de l'équipe est la coconception matériel-logiciel, et mon stage s'est effectué dans le contexte de la thèse de Johan Söderström @johan_phd, intitulée "Accelerating Hardware Coherence Using Programmer Input in Multi/Manycore Systems," qui vise justement à améliorer des comportements micro-architecturaux en demandant au côté logiciel des "indices" sur le comportement attendu.
 
-C'est un sujet sur lequel les tests pratiques sont indispensables pour valider autant l'approche que la pratique, et pourtant l'étendu des domaines touchés est telle qu'il est difficile pour une seule personne de pouvoir se pencher sur chacun avec le même niveau d'expertise. Le laboratoire a de fortes connaissances du côté matériel, mais moins en logiciel, ce qui limite Johan dans ce qu'il peut explorer et tester pour sa thèse.
+C'est un sujet sur lequel les tests pratiques sont indispensables pour valider autant l'approche que la pratique, et pourtant l'étendue des domaines touchés est telle qu'il est difficile pour une seule personne de pouvoir se pencher sur chacun avec le même niveau d'expertise. Le laboratoire a de fortes connaissances du côté matériel, mais moins en logiciel, ce qui limite Johan dans ce qu'il peut explorer et tester pour sa thèse.
 
 // - aider pour la thèse de johan (cf. sec. 2)
 //   - implémentation d'instrs

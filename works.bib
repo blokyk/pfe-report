@@ -1,3 +1,4 @@
+// https://www.bibtex.com/format/fields/
 @article{gem5-src,
   author       = {Nathan L. Binkert and
                   Bradford M. Beckmann and
@@ -152,4 +153,31 @@
   numpages = {1},
   location = {Anaheim, CA},
   series = {ATEC '05}
+}
+@online{zen5_opt,
+  author = {{AMD}},
+  title = {Software Optimization Guide for the {AMD Zen5} Microarchitecture},
+  chapter = {2.2},
+  page = 16,
+  month = 08,
+  year = 2024,
+  url = {https://docs.amd.com/v/u/en-US/58455_1.00},
+  urldate = {2026-09-09}
+}
+@inproceedings{coherence_overhead,
+  author = {Joshi, Amit D. and Vollala, Satyanarayana and Begum, B. Shameedha and Ramasubramanian, N.},
+  title = {Performance Analysis of Cache Coherence Protocols for Multi-core Architectures: A System Attribute Perspective},
+  year = {2016},
+  isbn = {9781450342131},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  url = {https://doi.org/10.1145/2979779.2979801},
+  doi = {10.1145/2979779.2979801},
+  abstract = {Shared memory multi-core processors are becoming dominant in todays computer architectures. Caching of shared data may produce a problem of replication in multiple caches. Replication provides reduction in contention for shared data items along with reduction in access latency and memory bandwidth. Caching of shared data that are being read by multiple processors simultaneously, introduces the problem of cache coherence. There are two different techniques to track the sharing status viz. Directory and Snooping. This work gives an emphasis on the study and analysis of impact of various system parameters on the performance of the basic techniques. The performance analysis of this work is based on the number of processors, available bandwidth and cache size. The prime aim of this work is to identify appropriate cache coherence protocol for various configurations. Simulation results have shown that snooping based systems are appropriate for high bandwidth systems and is the ideal choice for CPU and communication intensive workloads while directory based cache coherence protocols are suitable for lower bandwidth systems and will be more appropriate for memory intensive workloads.},
+  booktitle = {Proceedings of the International Conference on Advances in Information Communication Technology \& Computing},
+  articleno = {22},
+  numpages = {7},
+  keywords = {Snooping, Multi-core, Eviction, Directory, Clustering, Cache Coherence, AMAT},
+  location = {Bikaner, India},
+  series = {AICTC '16}
 }
