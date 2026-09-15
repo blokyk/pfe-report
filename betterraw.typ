@@ -39,7 +39,7 @@
     let lineno = line.number;
 
     // left-aligned line numbers
-    {
+    let lineno_content = {
       let curr_lno_digit = calc.ceil(calc.log(lineno+1, base: 10));
 
       let max_lno = line.count;
@@ -51,8 +51,17 @@
     }
 
     [ #metadata((kind: "raw-line", lineno: lineno)) #maybe_label ]
-    h(1em)
-    line
+
+    // use a box to make the grid in-line (which avoids having massive gaps between each line)
+    box(
+      grid(
+        align: (top + right, top + left),
+        columns: 2, column-gutter: 1em,
+
+        lineno_content,
+        line
+      )
+    )
   }
 
   show figure.where(kind: raw): it => {
