@@ -16,22 +16,26 @@ Cette idée de transporter une grande quantité de données d'un seul coup pour 
   Les processeurs modernes peuvent avoir des lignes d'environ 64 octets @zen5_opt, avec une taille totale variant de quelques centaines de kilo-octets à une dizaine de méga-octets. Un cache peut donc avoir entre quelques milliers et quelques centaines de milliers de lignes, assez pour stocker plusieurs images 4k rien que dans le cache. Ça en fait des poignées de foin !
 ]
 
-Comme avec le foin, ce n'est utile que si on transporte plus qu'une petite quantité à chaque accès : lors d'une lecture en mémoire, le processeur requête en réalité _plus_ d'octets que nécessaires, profitant du fait que les accès mémoire sont souvent séquentiels (une propriété dite "localité spatiale"). C'est par exemple le cas lors d'une recherche linéaire dans un tableau. Dans notre cas, la "poignée" de foin s'appelle une _ligne_, et le cache est organisé comme un ensemble de lignes indépendantes#footnote(ft_line_size) remplies à la demande par le processeur. Au bout d'un certain temps, le cache se remplit et il n'y a plus de lignes libres ; le cache doit alors défausser des lignes pour libérer de la place, un processus qu'on appelle _éviction_.
+Comme avec le foin, ce n'est utile que si on transporte plus qu'une petite quantité à chaque accès : lors d'une lecture en mémoire, le processeur requête en réalité _plus_ d'octets que nécessaires, profitant du fait que les accès mémoire sont souvent séquentiels (une propriété dite "localité spatiale"). C'est par exemple le cas lors d'une recherche linéaire dans un tableau. Dans notre cas, la "poignée" de foin s'appelle une _ligne_, et le cache est organisé comme un ensemble de lignes indépendantes#footnote(ft_line_size) remplies à la demande par le processeur.
+
+Le cache implémente également un compromis taille/vitesse différent de la mémoire centrale.
+De façon générale, une mémoire peut être soit rapide d'accès pour le processeur, soit grande, mais pas les deux ; pour (entre autres) la raison simple que l'espace physiquement disponible à proximité du coeur du processeur est limité.
+Tous les points le long de ce spectre sont utiles, c'est pourquoi un ordinateur a typiquement à la fois des mémoires petites et rapides, des mémoires grandes et lentes, et des mémoires intermédiaires ; quelques ordres de grandeur sont donnés sur la @fig_simple_mem_hier.
+Le cache est typiquement capable d'atteindre la vitesse de la mémoire centrale avec une latence plus faible ; en échange il est plus petit.
+Inévitablement au fur et à mesure de l'exécution, le cache se remplit donc jusqu'à ce qu'il n'y ait plus de lignes libres ; il doit alors défausser des lignes pour libérer de la place, un processus qu'on appelle _éviction_.
 
 #figure(
-  todo[
-    cpu/registers \<-\> cache \<-\> mémoire (\<-\> disque? on en a pas parlé donc bizarre a inclure mais bon)
-  ],
+  image("../assets/memory-hierarchy.svg", width: 85%),
   caption: [Représentation de la "hiérarchie de mémoire".]
 ) <fig_simple_mem_hier>
 
-Lire depuis la mémoire cache est typiquement 200 fois plus rapide #todo[source?] que lire depuis la mémoire centrale. De la même façon, _écrire_ est aussi bien plus rapide dans le cache ; il y a toutefois des techniques plus variées (dites "politiques d'écriture") pour gérer les effets associés qui, comme on va le voir plus tard, sont la source de certains maux de tête. Par exemple, si l'on s'arrête à une écriture dans le cache (politique _copy-back_), l'écriture est rapide mais la mémoire centrale ne contient pas la donnée réellement manipulée par le programme ; or, si l'on pousse chaque écriture dans la mémoire centrale aussi pour synchroniser (politique _write-through_), le trafic mémoire augmente significativement et annule une partie des gains de performances liés au cache.
+De la même façon, _écrire_ est aussi bien plus rapide dans le cache ; il y a toutefois des techniques plus variées (dites "politiques d'écriture") pour gérer les effets associés qui, comme on va le voir plus tard, sont la source de certains maux de tête. Par exemple, si l'on s'arrête à une écriture dans le cache (politique _copy-back_), l'écriture est rapide mais la mémoire centrale ne contient pas la donnée réellement manipulée par le programme ; or, si l'on pousse chaque écriture dans la mémoire centrale aussi pour synchroniser (politique _write-through_), le trafic mémoire augmente significativement et annule une partie des gains de performances liés au cache.
 
-Bien sûr, il y a un compromis fondamental entre la capacité de stockage du cache et sa vitesse, donc une évolution majeure des caches depuis leur naissance a été d'essayer d'augmenter leur taille sans affecter la vitesse, ce qui a résulté entre-autres, en l'idée d'avoir plusieurs "niveaux" de caches : le processeur a plusieurs banques de mémoires caches, allant progressivement de caches plus petits mais plus intégrés et proches du coeur, à des caches bien plus gros mais nécessairement plus éloignés et lents ; ces différents niveaux sont généralement notés L1 (cache très petit mais très proche), L2 (cache un peu plus grand mais plus éloigné), L3 (cache très grand mais très éloigné et relativement lent), etc.
+Le cache s'avère en pratique crucial pour les performances de programmes ; une évolution majeure depuis leur naissance a donc été d'essayer d'augmenter leur taille sans affecter la vitesse, ce qui a résulté entre-autres, en l'idée d'avoir plusieurs "niveaux" de caches : le processeur a plusieurs banques de mémoires caches, allant progressivement de caches plus petits mais plus intégrés et proches du coeur, à des caches bien plus gros mais nécessairement plus éloignés et lents ; ces différents niveaux sont généralement notés L1 (cache très petit mais très proche), L2 (cache un peu plus grand mais plus éloigné), L3 (cache très grand mais très éloigné et relativement lent), etc., illustrés sur la @fig_multi_mem_hier.
 
 #figure(
-  todo[même diagramme mais cette fois-ci avec plusieurs niveaux de caches],
-  caption: [Représentation de la "hiérarchie de mémoire" avec plusieurs niveaux de caches.]
+  image("../assets/cache-hierarchy.svg"),
+  caption: [Représentation d'une "hiérarchie de cache" typique à 3 niveaux.]
 ) <fig_multi_mem_hier>
 
 == Multiples caches, multiples problèmes
