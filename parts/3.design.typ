@@ -56,16 +56,6 @@ Le code généré par le front-end est typiquement très inefficace et passe don
 
 C'est là qu'on voit la dualité fondamentale de cette pipeline : les transformations qui veulent accéder à des informations structurées ou annotées dans le code source doivent se faire tôt, dans les couches hautes ; à l'inverse, les transformations qui ont besoin de contrôle fin sur les instructions émises dans le programme assembleur doivent se faire tard, dans les couches basses. C'est une autre raison d'écarter l'idée d'annotation déclenchant cette transformation dans @sec_design_input : elle nécessiterait de transporter les annotations émises à haut-niveau vers le code bas-niveau ; cette tâche est suffisamment complexe pour nécessiter plusieurs années de recherche @seb_llvm pour "seulement" quelques informations basiques.
 
-// - pipeline/schéma traditionnel de compil
-// - zoom sur la partie middle-end/optimisation
-// - on a du code assez haut niveau qui rentre, avec beaucoup de truc inefficaces mais aussi pas mal d'indices de ce que voulait faire l'auteur
-// - puis on a différente étapes, soit d'opti soit de lowering, jusqu'à ce qu'on sorte du quasi-code-machine
-//   - il y a des informations qui sont à certaines étapes, et il y a aussi des informations qu'on ne connaît pas forcément encore
-
-// // - this isn't even my final form! (has to go through pseudo-isel first)
-
-// - en pratique (\<5mois, je connais rien à llvm), on fait juste une version très naïve de la strat automatique
-
 == #todo[plan pour l'opti]
 
 Étant donné cette limitation, nous devons désormais faire un choix exact d'où, sur ce spectre d'informations, placer notre nouvelle optimisation. Pour rapel, cette optimisation doit pouvoir détecter les lectures à partir d'emplacements mémoire sur lesquels ont écrit un peu plus tard. Notons d'abord les prérequis de cette optimisation :
@@ -86,7 +76,18 @@ Il est donc maintenant évident que le seul emplacement possible pour notre opti
 
 == #todo[maintenant, on passe le relai au hardware] <sec_design_hw>
 
-- ...en pratique, on utilise un simulateur parce que beaucoup plus facile que le hardware
-  - on aurait pu utiliser un truc genre verilator mais à peu près aussi galère que du vrai hardware
-- le simulateur doit pouvoir décoder l'instr
-- ET il doit ordonner au cache de se comporter correctement
+Évidemment, pouvoir générer ces instructions ne suffit pas. L'autre partie de ce stage est aussi d'évaluer l'impact sur les performances d'exécution d'un programme. Dans un monde idéal, cela se ferait sur un réel système, avec un processeur modifié pour supporter nos `stlw`, pour nous donner des mesures exactes de gains de performance réalistes. Cependant, en pratique, ce type de tests ne serait forcément aussi utile qu'on aimerait le croire.
+
+La conception de micro-processeurs est un domaine qui exige un niveau de minimum élevé, et même des minuscules modifications peuvent vite engouffrer des semaines entières dans une chasse aux bugs infinie. De plus, même avec tout le savoir au monde, le temps d'itération est souvent très long, certains designs pouvant prendre des heures à synthétiser malgré leurs petites tailles. Ainsi, l'idée de tester directement sur du matériel n'est pas envisageable.
+
+#let ft_dont_even_think_abt_it = [
+  Une leçon que j'ai déjà apprise lors mon dernier stage, après avoir innocemment essayé d'utiliser un design de processeur vectoriel pour tester du code que j'avais écrit dans le cadre de mon sujet. J'ai heureusement vite remarqué les sables mouvants dans lesquels je m'étais enlisée, et m'en suis échappée.
+]
+
+L'option la plus proche de tester sur du hardware était bien sûr de _simuler_ l'exécution d'un design de processeur, à l'aide s'un simulateur de HDL tel que Verilator. Ceci augment généralement la vitesse d'itération, et apporte bien plus d'outils de debuggage et diagnostics. Cependant, il y a toujours le problème d'un micro-processeur n'est pas trivial : tenter de simplement _explorer_ un design d'un _composant interne_ d'un processeur est déjà une tâche gargantuesque#footnote(ft_dont_even_think_abt_it).
+
+La seule alternative restante était donc d'utiliser un simulateur _logiciel_. Ici, nous n'avons pas de design concret de micro-processeur, mais plutôt un modèle approximatif du fonctionnement _général_ de sa micro-architecture. On ne peut donc pas évaluer la performance aussi fidèlement, bien sûr, mais il reste toujours possible de faire des mesures _qualitatives_. Par exemple, un test sur simulateur qui relève un gain de performance de 4% ne signifie pas qu'on gagnera réellement 4% sur un processeur en pratique, mais cela nous indique un ordre de grandeur : on peut sûrement s'attendre à avoir des gains de plus de 1%, mais pas plus de 10%. Pour notre cas, d'une exploration initiale servant surtout à guider et informer une thèse, ce genre d'information suffit largement, donc un simulateur micro-architectural est parfait.
+
+Il existe une kyrielle de simulateur de ce genre selon les domaines exacts, mais, dans notre cas, nous avons spécifiquement besoin de modéliser précisément à la fois le système de cache _et_ l'exécution du processeur. Le simulateur le mieux équipé pour cela est gem5, que nous explorerons plus en détail dans la @sec_gem5.
+
+Nous aurons alors pour tâche d'y ajouter non-seulement le support de nos nouvelles instructions, mais aussi potentiellement de modifier le système de cache et ses protocoles de cohérence pour que ceux-ci réagissent correctement à nos instructions.
