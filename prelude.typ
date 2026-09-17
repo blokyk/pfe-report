@@ -71,6 +71,7 @@
   // show figure.caption: box.with(width: 80%)
 
   // prevent figures from floating out of their sections
+  set figure(placement: auto)
   show heading: it => [#place.flush() #it]
 
   show "oe": "\u{0153}"
