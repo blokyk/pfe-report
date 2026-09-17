@@ -50,7 +50,7 @@ En théorie, pour implémenter nos plans originaux de la @sec_design_hw, nous au
 Pour ajouter à cette complexité, ces changements nécessiteraient en plus de manipuler trois langages différents : en plus du C++ utilisé dans le reste de la base de code, le décodeur est décrit dans un DSL#footnote[Langage dédie ou langage domaine, lit. _Domain-Specialised Language_] _ad-hoc_, et les protocoles de cache sont eux spécifiés dans un _autre_ DSL _ad-hoc_ (appelé "SLICC"), à l'aide de machines à état et de files de messages.
 
 #let ft_gem5_docs = [
-  Documentation qui est, d'ailleurs, souvent obsolète, incomplète, ou même inexistante, et est éparpillée en une myriade de forme (référence technique, documentation traditionnelle, tutoriels, cours, slides, exercices, _autre_ référence technique, etc.) ; peut-être ont-ils pris la carte de #link("https://diataxis.fr/")[Diátaxis] un peu trop littéralement ?
+  Documentation qui est, d'ailleurs, souvent obsolète, incomplète, ou même inexistante, et est éparpillée en une kyrielle de forme (référence technique, documentation traditionnelle, tutoriels, cours, slides, exercices, _autre_ référence technique, etc.) ; peut-être ont-ils pris la carte de #link("https://diataxis.fr/")[Diátaxis] un peu trop littéralement ?
 ]
 
 Ainsi, une des premières tâches de mon stage a été de vérifier lesquelles de ces étapes étaient réellement nécessaires. Cette étape était beaucoup plus "floue" que les autres : elle consistait surtout à lire la documentation des différents composants de gem5#footnote(ft_gem5_docs), et à naviguer le code en espérant y trouver une indication d'où ces modifications devraient être (soit en cherchant des "mots-clés", soit en essayant de tracer le chemin d'exécution).
