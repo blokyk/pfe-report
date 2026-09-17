@@ -12,6 +12,9 @@
         "PERAIS",
         "tima"
     ],
+    "files.exclude": {
+        "*.pdf": true
+    },
     "editor.wordBasedSuggestions": "off",
     "tinymist.projectResolution": "lockDatabase",
 }
