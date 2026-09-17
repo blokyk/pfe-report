@@ -4,7 +4,7 @@
 
 Avec ce contexte et cette problématique établis, nous pouvons désormais nous tourner vers la conception d'une solution. Comme détaillé dans la section précédent, la thèse de Johan Söderström @johan_phd nécessite d'établir un moyen de communication entre le programmeur et le système de cache. Cependant, il n'est jusqu'ici pas évident quelle forme exacte cette communication devrait prendre. Cette section décrit la conception de cette solution d'un relativement haut niveau, et laisse aux sections @sec_llvm[] et @sec_gem5[] le rôle d'expliquer les détails d'implémentation.
 
-== #todo[Entrées de dev]
+== #todo[Expression par procuration] <sec_design_input>
 
 Avant de réfléchir à une forme de communication destinée au cache, il faut d'abord réfléchir à une forme destinée au programmeur lui-même. En effet, bien que les résultats finaux soient souvent les mêmes, les programmes modernes sont écrits dans une myriade de langages différents qui ont, pour la plupart, pour buts d'exprimer au mieux les désirs et idées de l'utilisateur. Une partie de cet objectif requiert d'inférer plus ou moins d'informations sur le comportement voulu par le programmeur. Là où certains langages se réservent entièrement le choix de moyen de stockage de donnée en mémoire (par ex. JavaScript, Python), d'autres demandent d'expliciter la démarche d'allocation (par ex. C, Zig), et d'autres encore laissent le choix à l'utilisateur tout en ayant des moyens de l'influencer (par ex. ```c register``` en C permettant d'explicitement stocker une valeur en registre, tandis que le reste des valeurs peuvent être stockées soit en registre, soit en pile, à la liberté de l'implémentation).
 
@@ -17,7 +17,7 @@ Dans notre cas, il est important de préciser que, idéalement, l'utilisateur n'
 
 Ainsi, il semblerait que la manière la plus idéale d'implémenter cette solution est de manière transparente à l'utilisateur : les lectures qui sont suivies d'écritures seront détectées automatiquement par le compilateur, sans annotation ou action du programmeur.
 
-== Forme finale du code
+== #todo[Forme finale du code]
 
 Maintenant que nous avons établi comment l'utilisateur exprimera sa connaissance du comportement des accès mémoire du programme, on peut se tourner à la communication de cette information envers le système de cache.
 
@@ -25,11 +25,20 @@ Quand il en vient à communiquer au matériel une information que le programmeur
 
 L'autre choix commun est de créer une variation d'une instruction existante. En effet, "l'espace d'instructions RISC-V", c'est-à-dire l'ensemble des possibilités d'encodages d'instructions RISC-V, est aménagé de manière à laisser amplement assez de "place" pour pouvoir ajouter de nouvelles instructions. Par exemple, l'extension `Zalrsc` introduit une variation de l'instruction `LW` (servant à charger un _word_ de 32-bits), en réutilisant le même format et les cinq derniers bits de l'encodage, mais en changeant uniquement l'opcode principal. Ceci requiert donc potentiellement d'ajouter un grand nombre d'instructions (il faut généralement faire une variation de chaque déclinaison de l'instruction originale), mais, peut-être contre-intuitivement, elles sont cette fois-ci plus facile à implémenter en matériel. En effet, ces nouvelles instructions ne requièrent pas de stocker plus d'état persistent, qui n'aura donc pas non plus de risque d'interagir avec d'autres instructions, etc. Elles peuvent aussi très souvent réutiliser une grande partie des composants matériels internes déjà existants, et ont donc également un moindre coût physique.
 
-Étant donné le manque de compétence que j'avais pour l'implémentation matérielle, essayé d'ajouter des _hints_ aurait présenté un bien plus gros problème qu'une variation d'instruction existante. Le sujet de ce stage était déjà suffisamment complexe, donc il a été décidé que la deuxième solution serait plus désirable dans ce cas.
+Étant donné le manque de compétence que j'avais pour l'implémentation matérielle, essayer d'ajouter des _hints_ aurait présenté un bien plus gros problème qu'une variation d'instruction existante. Le sujet de ce stage était déjà suffisamment complexe, donc il a été décidé que la deuxième solution serait plus désirable dans ce cas.
 
 Donc, pour que le programmeur puisse communique au processeur qu'une lecture à un emplacement mémoire sera bientôt suivi d'une écriture au même endroit, on ajoutera de nouvelles instructions reflétant les instructions _load_ de base. Celle-ci seront nommées `stlb`, `stlw`, etc., correspondantes aux instructions `lb`, `lw`, etc.
 
-== la compil
+== La pipeline de Babel
+
+Bien que nous ayons mentionné rapidement l'idée d'une passe d'optimisation lors de la @sec_design_input, les détails de son rôle sont encore flous. Nous avons parlé du langage qu'utilise le programmeur, mais il nous reste à parler de son traducteur : le _compilateur_. C'est l'outil qui permet à l'utilisateur de transformer la représentation de son programme en un langage source vers un langage plus bas-niveau, généralement le langage machine. Vu de loin, cette traduction est séparée en trois étapes, illustrées dans @fig_comp_simple_pipeline : .
+
+#figure(
+  caption: [Une vue _extrêmement_ simplifiée des trois étapes d'un compilateur.],
+  image("/assets/compiler.svg")
+) <fig_comp_simple_pipeline>
+
+Cette "traduction" n'a pas toujours seulement pour but de reproduire à l'identique les instructions données par le programmeur, cependant. Elle peut aussi 
 
 - pipeline/schéma traditionnel de compil
 - zoom sur la partie middle-end/optimisation
