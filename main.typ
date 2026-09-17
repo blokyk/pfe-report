@@ -39,8 +39,8 @@
 #include "parts/3.design.typ"
 #include "parts/4.llvm.typ"
 #include "parts/5.gem5.typ"
-#include "parts/6.planning.typ"
-#include "parts/7.results.typ"
+#include "parts/6.results.typ"
+#include "parts/7.planning.typ"
 #include "parts/8.conclusion.typ"
 
 #pagebreak(weak: true)
