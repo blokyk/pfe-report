@@ -31,14 +31,19 @@ Donc, pour que le programmeur puisse communique au processeur qu'une lecture à 
 
 == La pipeline de Babel
 
-Bien que nous ayons mentionné rapidement l'idée d'une passe d'optimisation lors de la @sec_design_input, les détails de son rôle sont encore flous. Nous avons parlé du langage qu'utilise le programmeur, mais il nous reste à parler de son traducteur : le _compilateur_. C'est l'outil qui permet à l'utilisateur de transformer la représentation de son programme en un langage source vers un langage plus bas-niveau, généralement le langage machine. Vu de loin, cette traduction est séparée en trois étapes, illustrées dans @fig_comp_simple_pipeline : .
+Bien que nous ayons mentionné rapidement l'idée d'une passe d'optimisation lors de la @sec_design_input, les détails de son rôle sont encore flous. Nous avons parlé du langage qu'utilise le programmeur, mais il nous reste à parler de son traducteur : le _compilateur_. C'est l'outil qui permet à l'utilisateur de transformer la représentation de son programme en un langage source vers un langage plus bas-niveau, généralement le langage machine. Vu de loin, cette traduction est séparée en trois étapes, illustrées dans @fig_comp_pipeline : .
 
 #figure(
   caption: [Une vue _extrêmement_ simplifiée des trois étapes d'un compilateur.],
   image("/assets/compiler.svg")
-) <fig_comp_simple_pipeline>
+) <fig_comp_pipeline>
 
-Cette "traduction" n'a pas toujours seulement pour but de reproduire à l'identique les instructions données par le programmeur, cependant. Elle peut aussi 
+Cependant, cette "traduction" n'a pas toujours seulement pour but de reproduire à l'identique les instructions données par le programmeur. Elle peut aussi 
+
+#figure(
+  caption: [Un zoom sur les transformations appliquées par le "middle-end".],
+  image("/assets/compiler-ir.svg")
+) <fig_comp_opt>
 
 - pipeline/schéma traditionnel de compil
 - zoom sur la partie middle-end/optimisation
