@@ -42,6 +42,10 @@
           "flags",
           "SLICC",
           "Diátaxis",
+          "opcode",
+          "out-of-order",
+          "memory-bound",
+          "CPU-bound",
           ""
         ]
       },
