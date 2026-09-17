@@ -60,7 +60,7 @@ Des caches privés évitent ces problèmes, en plaçant chaque coeur au contrôl
 
 // - exemple avec `struct list { int count; int* data; }` (cf https://docs.kernel.org/kernel-hacking/false-sharing.html)
 
-== La communication, c'est important
+== La communication, c'est important <sec_cache_protocols>
 
 Il est donc essentiel de trouver un moyen de résoudre ce problème d'incohérence entre les deux caches. La solution évidente est de faire communiquer ces deux caches "privés", avec un _protocole de cohérence de cache_. Il existe une grande quantité de protocoles, selon les propriétés de cohérence requises, les performances attendues, ou même l'implémentation exacte de chaque cache.
 
