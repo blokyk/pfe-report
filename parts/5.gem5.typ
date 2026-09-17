@@ -26,7 +26,7 @@ Bien sûr, il y a une myriade de manières de concevoir un processeur, donc gem5
 Chacun de ces modèles (et bien d'autres non mentionnés) sont implémentés en C++ et faits pour être facilement modifiables. Pour pouvoir modéliser au mieux les communications entre chaque composant micro-architectural, ces implémentations sont constituées d'objets indépendants et interchangeables, qui échangent des paquets, des messages, des signaux, qui utilisent des files d'attentes, qui peuvent seulement prendre un nombre limité d'actions par cycle, etc. La @fig_gem5_cpu démontre les différents types de communications et d'intégrations entre les composants qui forment un coeur de CPU.
 
 #figure(
-  caption: [Représentation simplifiée des échanges entre composants d'un coeur dans gem5],
+  caption: [Représentation simplifiée des échanges entre composants d'un coeur dans gem5.],
   todo[
   - petit diagramme avec:
   - une cpu, qui contient:
@@ -64,7 +64,7 @@ Il est assez vite devenu apparent qu'un concept similaire existait pour les arch
 Cependant, après plusieurs semaines de recherches et tests, il est vite devenu clair qu'en réalité, tout était déjà en place pour pouvoir tester notre design initial : l'instruction n'était pas catégorisée comme atomique juste à cause de ce flag, le système mémoire était capable de traduire correctement des requêtes le contenant#footnote(ft_rmw_store), et CHI était déjà capable de modéliser cette situation sans modification. La seule tâche restante était alors d'ajouter le support pour notre instruction, et de lui attacher le bon flag. Pour ceci, il suffisait de modifier le fichier spécifiant le décodeur RISC-V, `src/arch/riscv/isa/decoder.isa`. Le DSL utilisé par celui-ci est assez peu documenté, mais le code à ajouter est surprenamment simple : le @lst_gem5_decoder_patch montre la spécification de notre instruction `stlb`, où l'on utilise `mem_flags` pour spécifier que la requête mémoire doit avoir le flag donné, le fameux `READ_MODIFY_WRITE` (une meilleure explicitation du DSL est hors de portée de ce rapport).
 
 #figure(
-  caption: [Un extrait du code ajouté au décodeur RISC-V de gem5 pour supporter une de nos nouvelles instructions, `stlb`]
+  caption: [Un extrait du code ajouté au décodeur RISC-V de gem5 pour supporter une de nos nouvelles instructions, `stlb`.]
 )[
   ```ts
   0x16: decode FUNCT3 {
@@ -85,7 +85,7 @@ Cependant, après plusieurs semaines de recherches et tests, il est vite devenu 
 Bien que la plupart du code gem5 soit écrit en C++ (un peu plus de 88%), l'interface publique de gem5 est en Python: la mise en place d'une simulation se fait en instanciant des objets de différentes classes Python#footnote(ft_cpp_py_classes), représentant chacun différents composants du système à simuler. Il est possible de régler manuellement chaque composant individuel et de les "raccorder" comme on le souhaite, mais il existe aussi des classes utilitaires telles que `RiscvBoard` lorsqu'on désire une configuration basique. Par exemple, le @lst_base_gem5_conf crée un système avec un processeur mono-coeur 1GHz RISC-V utilisant le modèle `TimingSimpleCPU`, 1Go de RAM DDR3 1600 MHz, et aucun cache, grâce à la classe `RiscvBoard`, qui s'occupe d'établir les connections et d'initialiser chaque composant lors de la simulation.
 
 #figure(
-  caption: [Une configuration basique d'un système RISC-V]
+  caption: [Une configuration basique d'un système RISC-V.]
 )[
   ```py
   from gem5.components.boards.riscv_board import RiscvBoard
@@ -121,7 +121,7 @@ Le premier mode est utile lorsque l'interaction entre le système "matériel" et
 Le @lst_base_gem5_run démontre les additions nécessaires au @lst_base_gem5_conf pour charger un binaire `hello.rv64` en mode _Syscall Emulation_ sur notre système, et pour lancer la simulation jusqu'à sa complétion. Étant donné qu'il est exécuté en _SE_, `hello.rv64` peut faire appels à des fonctions systèmes telles que `write(2)` ou `_exit(2)`, et ceux-ci seront gérés correctement par gem5.
 
 #figure(
-  caption: [Un exemple de code permettant de lancer une simulation en _Syscall Emulation_]
+  caption: [Un exemple de code permettant de lancer une simulation en _Syscall Emulation_.]
 )[
   ```py
   ...
@@ -137,7 +137,7 @@ Le @lst_base_gem5_run démontre les additions nécessaires au @lst_base_gem5_con
 Avec ces outils en main, nous pouvons désormais mettre en place les conditions dans lesquelles nous souhaitons dérouler nos tests. Étant donné que l'on souhaite surtout observer le comportement du cache, sans forcément s'intéresser à son interaction avec le modèle d'exécution du processeur, nous utiliserons un coeur basé sur `TimingSimpleCPU`, ce qui nous permettra notamment de mesurer précisément les éventuels gains de performance temporelle qu'apporte notre optimisation. Ensuite, il faut établir la composition de nos caches : nous savons déjà que nous utiliserons le protocole de cohérence CHI, et gem5 offre deux implémentations pré-faites de hiérarchies CHI ; nous choisirons une hiérarchie avec deux niveaux de cache privés, de respectivement 16Kio et 128Kio chacun. La configuration finale correspondante à cette description est présentée dans le @lst_final_gem5_conf.
 
 #figure(
-  caption: [La configuration utilisée pour les expériences au travers du stage]
+  caption: [La configuration utilisée pour les expériences au travers du stage.]
 )[
   ```py
   from gem5.isas import ISA

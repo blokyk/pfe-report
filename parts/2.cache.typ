@@ -22,7 +22,7 @@ Comme avec le foin, ce n'est utile que si on transporte plus qu'une petite quant
   todo[
     cpu/registers \<-\> cache \<-\> mémoire (\<-\> disque? on en a pas parlé donc bizarre a inclure mais bon)
   ],
-  caption: [Représentation de la "hiérarchie de mémoire"]
+  caption: [Représentation de la "hiérarchie de mémoire".]
 ) <fig_simple_mem_hier>
 
 Lire depuis la mémoire cache est typiquement 200 fois plus rapide #todo[source?] que lire depuis la mémoire centrale. De la même façon, _écrire_ est aussi bien plus rapide dans le cache ; il y a toutefois des techniques plus variées (dites "politiques d'écriture") pour gérer les effets associés qui, comme on va le voir plus tard, sont la source de certains maux de tête. Par exemple, si l'on s'arrête à une écriture dans le cache (politique _copy-back_), l'écriture est rapide mais la mémoire centrale ne contient pas la donnée réellement manipulée par le programme ; or, si l'on pousse chaque écriture dans la mémoire centrale aussi pour synchroniser (politique _write-through_), le trafic mémoire augmente significativement et annule une partie des gains de performances liés au cache.
@@ -31,7 +31,7 @@ Bien sûr, il y a un compromis fondamental entre la capacité de stockage du cac
 
 #figure(
   todo[même diagramme mais cette fois-ci avec plusieurs niveaux de caches],
-  caption: [Représentation de la "hiérarchie de mémoire" avec plusieurs niveaux de caches]
+  caption: [Représentation de la "hiérarchie de mémoire" avec plusieurs niveaux de caches.]
 ) <fig_multi_mem_hier>
 
 == Multiples caches, multiples problèmes
@@ -49,9 +49,8 @@ Utiliser des caches partagés est généralement plus lent, étant donné que ch
 Des caches privés évitent ces problèmes, en plaçant chaque coeur au contrôle d'une unité de cache, et en divisant une même quantité de stockage entre plusieurs caches, pour qu'ils soient individuellement plus rapides. Cependant, cette séparation amène un nouveau problème : maintenant qu'il n'y a plus d'unité centrale, il n'y a plus de _source de vérité_ partagée non plus. Ainsi, dans le cas où deux coeurs travaillent sur une même donnée en mémoire, si l'un d'entre eux la modifie, il n'y a désormais plus de garantie que l'autre coeur sera conscient de cette modification et utilisera la bonne "version" de la donnée. La @fig_incohenrency illustre un cas où deux coeurs traitent la même donnée (ici une variable `msg` stockée en mémoire), qui a été mise en cache dans leurs caches privés respectifs au préalable ; le coeur 1 tente de modifier ce message, ce qui change sa valeur dans son cache privé, mais cette mutation n'a pas été reproduite dans le cache du coeur 2, ce qui fait que, lorsque ce dernier lit la valeur de `msg`, son cache lui retourne une valeur maintenant obsolète.
 
 #figure(
-  image("/assets/incoherency_sketch.png", width: 70%),
-  placement: auto,
-  caption: [Un exemple d'incohérence entre deux caches privés]
+  image("/assets/incoherency.svg"),
+  caption: [Un exemple d'incohérence entre deux caches *privés*.]
 ) <fig_incohenrency>
 
 // - exemple avec `struct list { int count; int* data; }` (cf https://docs.kernel.org/kernel-hacking/false-sharing.html)
