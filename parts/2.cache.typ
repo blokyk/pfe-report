@@ -61,23 +61,25 @@ Des caches privés évitent ces problèmes, en plaçant chaque coeur au contrôl
 
 == La communication, c'est important <sec_cache_protocols>
 
-Il est donc essentiel de trouver un moyen de résoudre ce problème d'incohérence entre les deux caches. La solution évidente est de faire communiquer ces deux caches "privés", avec un _protocole de cohérence de cache_. Il existe une grande quantité de protocoles, selon les propriétés de cohérence requises, les performances attendues, ou même l'implémentation exacte de chaque cache.
+Il est donc essentiel de trouver un moyen de résoudre ce problème d'incohérence entre les deux caches. La solution évidente est de faire communiquer ces deux caches "privés", avec un _protocole de cohérence de cache_. Il existe une grande quantité de protocoles, selon les propriétés de cohérence requises, les performances attendues, ou même l'implémentation exacte de chaque cache, mais globalement les protocoles s'assurent que :
 
-- les protocoles de cohérence permettent de mitiger ça
-  - petite explication textuelle abstraite
-  - puis diagramme d'explication
-  - "les lignes de cache peuvent être dans différents 'états' du point de vue du protocole"
-    - cf. https://support.arm.com/documentation/102407/0102/CHI-protocol-fundamentals#md320-chi-protocol-fundamentals__chi-cache-line-states
-    - et btw il existe un état spécifique pour une ligne de cache sur laquelle on écrit
+- Les écritures dans un cache sont visibles par tous les caches, immédiatement ou à la demande
+- Les accès à une même donnée en mémoire s'exécutent comme s'ils étaient séquentiels
 
-Cependant, toutes ces communications ne sont pas gratuites.
+Dans le contexte de la thèse de Johan en général et donc de ce stage en particulier, on suppose un protocole "par répertoire" dans lequel un répertoire central traque quels caches ont des copies de quelles lignes, si les lignes ont été modifiées, et d'autres propriétés nécessaires à déclencher les transferts entre-cache dès que nécessaire.
+Concrètement, chaque ligne a un "état" (accès exclusif et pas modifiée, accès exclusif et modifiée, accès partagé...) et chaque accès mémoire par un coeur dans le système provoque des transitions d'état potentiellement accompagnées de propagation des modifications d'un cache aux autres.
 
-- ...mais ils rajoutent:
-  - de l'overhead pour les messages/allers-retours (cf [11] dans le rapport de johan)
-  - des hypothèses/suppositions sur le comportement du code
-    - (autant au design-time qu'au runtime)
-    - exemple intéressant pour nous: Shared vs. Unique
-- faire les bonnes hypothèses c'est essentiel pour de bonnes performances
-  - si on désigne une ligne comme Shared au lieu de Unique on prend X% de temps en overhead
-- sauf que la personne la mieux placée pour savoir ce que le code va faire, c'est celle qu'a _écrit_ le code
-- l'idée de la thèse de johan c'est justement de permettre au programmeur de donner des indices au cache sur le comportement du code w.r.t. cohérence
+Ce travail de cohérence a un coût non négligeable sur la bande passante des bus concernés, surtout pour les processeurs ayant beaucoup de coeurs tous affairés à la même tâche répartie en parallèle.
+Une des raisons de ce coût est que le système de cache ne connaît pas à l'avance quels accès le programme va effectuer, et doit donc répliquer les données pour répondre à tous les scénarios possibles.
+Dans l'exemple qui nous intéresse, si un coeur charge une ligne de cache et sait qu'il va ensuite la modifier, l'information pour la lecture _et_ l'écriture peut être gérée par le protocole plus efficacement qu'une lecture et une écriture séparément.
+
+// - ...mais ils rajoutent:
+//   - de l'overhead pour les messages/allers-retours (cf [11] dans le rapport de johan)
+//   - des hypothèses/suppositions sur le comportement du code
+//     - (autant au design-time qu'au runtime)
+//     - exemple intéressant pour nous: Shared vs. Unique
+// - faire les bonnes hypothèses c'est essentiel pour de bonnes performances
+//   - si on désigne une ligne comme Shared au lieu de Unique on prend X% de temps en overhead
+
+L'idée centrale de la thèse de Johan est de fournir logiciellement cette information sur le comportement des programmes.
+Le logiciel, à travers sa conceptrice ou, comme on va le voir, son compilateur, peut être annoté d'indices micro-architecturaux annonçant à l'avance les intentions du code et permettant au protocole de cohérence de cache de planifier efficacement les copies et invalidations de lignes dans les caches privés.
