@@ -11,3 +11,5 @@
   - et le meeting intermédiaire avec johan pour discuter du contenu et de l'approche de la doc a été positif
 
 - côté perso, j'aurai dû demander plus d'aide et me remettre en question plus vite, ça m'a causé de partir dans des directions inutiles ou destinées à échouer parfois #strike[tunnel vision strikes again]
+
+== Remerciements

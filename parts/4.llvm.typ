@@ -14,6 +14,9 @@
 
 == ajouter une opti dans llvm
 
+// - l'analyse d'alias est facilement accessible dans llvm, youpi!
+// Cependant, cette indécidabilité n'est pas le seul problème avec l'analyse d'alias : sans surprise, les différents algorithmes @type_aa @svf_aa @dyck_aa tentant de l'implémenter sont en plus très complexes. Heureusement, LLVM inclut déjà une multitude d'implémentation, dont il combine les résultats en une seule API, notamment la classe `AAResult`.
+
 - trois choix:
   - nouvelle opti hors-llvm
   - nouvelle opti dans llvm
