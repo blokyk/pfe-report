@@ -7,7 +7,7 @@ Comme mentionné dans la @sec_design_hw, le côté "hardware" de ce projet ne po
 == Le Zen de gem5
 
 #let ft_hdls = [
-  "Hardware Description Language", un terme générique pour designer les langages permettant de concevoir et décrire des composants matériels. Cette description se fait généralement en utilisant le "Register Transfer Level", où l'ont défini le composant en termes de transferts de données et de signaux, en faisant abstraction des détails temporaux et électroniques de l'implémentation finale.
+  "Hardware Description Language", un terme générique pour designer les langages permettant de concevoir et décrire des composants matériels. Cette description se fait généralement en utilisant le "Register Transfer Level", où l'on définit le composant en termes de transferts de données et de signaux, en faisant abstraction des détails temporaux et électroniques de l'implémentation finale.
 ]
 
 #let ft_sim_def_nuance = [
@@ -23,18 +23,19 @@ Bien sûr, il y a une myriade de manières de concevoir un processeur, donc gem5
   - *`MinorCPU`*, simulant également un processeur "in-order", mais son modèle d'exécution offre une bien meilleure flexibilité de configuration, permettant d'approximer le fonctionnement interne d'une grande quantité de CPUs réelles ainsi que d'explorer de nouvelles techniques de conception.
   - *`O3CPU`*, simulant un processeur "out-of-order" (aka OoO, aka O3), avec un modèle d'exécution extrêmement détaillé (en particulier, il est basé sur l'Alpha 21264, notamment son mécanisme de prédiction de branche), mais moins de customisation
 
-Chacun de ces modèles (et bien d'autres non mentionnés) sont implémentés en C++ et faits pour être facilement modifiables. Pour pouvoir modéliser au mieux les communications entre chaque composant micro-architectural, ces implémentations sont constituées d'objets indépendants et interchangeables, qui échangent des paquets, des messages, des signaux, qui utilisent des files d'attentes, qui peuvent seulement prendre un nombre limité d'actions par cycle, etc. La @fig_gem5_cpu démontre les différents types de communications et d'intégrations entre les composants qui forment un coeur de CPU.
+Chacun de ces modèles (et bien d'autres non mentionnés) sont implémentés en C++ et faits pour être facilement modifiables. Pour pouvoir modéliser au mieux les communications entre chaque composant micro-architectural, ces implémentations sont constituées d'objets indépendants et interchangeables, qui échangent des paquets, des messages, des signaux, qui utilisent des files d'attentes, qui peuvent seulement prendre un nombre limité d'actions par cycle, etc.
+
+La @fig_gem5_cpu donne une vue d'ensemble des différents types de communications et d'intégrations entre les composants du coeur de CPU et du système mémoire.
+Le processeur est centré autour du décodeur, qui est généré à la compilation de gem5 à partir d'une description de l'ISA dans un DSL, et de l'unité d'exécution, qui contrôle l'état du processeur, modifie les registres, et déclenche les accès mémoire.
+Tous les composants qui interagissent dans le système mémoire le font à travers des paires de *ports*, toujours constituées d'un "port maître" et d'un "port asservi", qui contiennent une file bidirectionnelle.
+Lorsque le processeur déclenche un accès mémoire il construit une *requête* qui est ensuite transportée par le système mémoire dans le réseau de ports par des échanges de *paquets*, qui sont essentiellement des interactions mémoire point-à-point permettant, en agrégat, d'amener la requête à son destinataire et de rapatrier la réponse.
 
 #figure(
-  caption: [Représentation simplifiée des échanges entre composants d'un coeur dans gem5.],
-  todo[
-  - petit diagramme avec:
-  - une cpu, qui contient:
-    - plusieurs coeurs, chacun connectés
-
-  note: on peut utiliser cette illustration comme base, juste en détaillant peut-être plus le système mémoire (et donc en ajoutant aussi un label "Request" ou "Packet" sur les communications entre mémoire et CPU): https://gem5bootcamp.github.io/gem5-bootcamp-env/modules/developing%20gem5%20models/instructions/
-  (ps: don't forget source/copyright/reference!)
-]) <fig_gem5_cpu>
+  caption: [Représentation simplifiée des échanges CPU/mémoire dans gem5 (basée sur #link("https://gem5bootcamp.github.io/gem5-bootcamp-env/modules/developing%20gem5%20models/instructions/")[[1]], #link("https://www.gem5.org/documentation/general_docs/ruby/")[[2]]).],
+  { image("../assets/gem5-cpu-memory-system.svg")
+    "Notation des files de paquets entre chaque paire de ports :"
+    image("../assets/gem5-queues.svg") }
+) <fig_gem5_cpu>
 
 == Implémenter une nouvelle technique... ou pas ?
 
