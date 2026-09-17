@@ -1,4 +1,4 @@
-= Conclusion <conclusion>
+= Conclusion <sec_conclusion>
 
 - il y avait deux parties dures:
   + comprendre le contexte de la thèse de johan avec mes connaissances moyennes en cohérence de cache

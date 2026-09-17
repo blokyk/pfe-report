@@ -1,4 +1,4 @@
-= Résultats <results>
+= Résultats <sec_results>
 
 - maintenant qu'on a modifié llvm et gem5 ET qu'on a setup une simu gem5, reste plus qu'à
   1. générer le binaire (et donc voici le code de départ, voici le code optimisé)

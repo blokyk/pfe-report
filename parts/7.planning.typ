@@ -1,4 +1,4 @@
-= planning & difficulties <planning>
+= planning & difficulties <sec_planning>
 
 == planning
 
