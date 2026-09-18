@@ -29,7 +29,7 @@ L'autre choix commun est de créer une variation d'une instruction existante. En
 
 Donc, pour que le programmeur puisse communique au processeur qu'une lecture à un emplacement mémoire sera bientôt suivi d'une écriture au même endroit, on ajoutera de nouvelles instructions reflétant les instructions _load_ de base. Celle-ci seront nommées `stlb`, `stlw`, etc., correspondantes aux instructions `lb`, `lw`, etc. qui définissent des lectures mémoire de différentes tailles et extensions de signe.
 
-== La pipeline de Babel
+== La pipeline de Babel <sec_design_compilers>
 
 Bien que nous ayons mentionné rapidement l'idée d'une passe d'optimisation lors de la @sec_design_input, les détails de son rôle sont encore flous. Nous avons parlé du langage qu'utilise le programmeur, mais il nous reste à parler de son traducteur : le _compilateur_. C'est l'outil qui permet à l'utilisateur de transformer la représentation de son programme en un langage source vers un langage plus bas-niveau, généralement le langage machine.
 
@@ -57,7 +57,7 @@ Le code généré par le front-end est typiquement très inefficace et passe don
 
 C'est là qu'on voit la dualité fondamentale de cette pipeline : les transformations qui veulent accéder à des informations structurées ou annotées dans le code source doivent se faire tôt, dans les couches hautes ; à l'inverse, les transformations qui ont besoin de contrôle fin sur les instructions émises dans le programme assembleur doivent se faire tard, dans les couches basses. C'est une autre raison d'écarter l'idée d'annotation déclenchant cette transformation dans la @sec_design_input : elle nécessiterait de transporter les annotations émises à haut-niveau vers le code bas-niveau ; cette tâche est suffisamment complexe pour nécessiter plusieurs années de recherche @seb_llvm pour "seulement" quelques informations basiques.
 
-== #todo[plan pour l'opti]
+== #todo[plan pour l'opti] <sec_design_opti>
 
 Étant donné cette limitation, nous devons désormais faire un choix exact d'où, sur ce spectre d'informations, placer notre nouvelle optimisation. Pour rapel, cette optimisation doit pouvoir détecter les lectures à partir d'emplacements mémoire sur lesquels on écrit un peu plus tard. Notons d'abord les prérequis de cette optimisation :
   + elle doit pouvoir inspecter n'importe quelle lecture mémoire, c.-à-d. que n'importe quel instructions load du binaire final (et de même avec les _écritures_ en mémoire)

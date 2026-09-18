@@ -48,7 +48,7 @@ En théorie, pour implémenter nos plans originaux de la @sec_design_hw, nous au
   + puis au bout d'un moment, traduire et transmettre à nouveau ce flag en un format compréhensible par le système de cache
   + enfin, ajouter le support pour ce flag dans le cache, qui adaptera son comportement
 
-Pour ajouter à cette complexité, ces changements nécessiteraient en plus de manipuler trois langages différents : en plus du C++ utilisé dans le reste de la base de code, le décodeur est décrit dans un DSL#footnote[Langage dédie ou langage domaine, lit. _Domain-Specialised Language_] _ad-hoc_, et les protocoles de cache sont eux spécifiés dans un _autre_ DSL _ad-hoc_ (appelé "SLICC"), à l'aide de machines à état et de files de messages.
+Pour ajouter à cette complexité, ces changements nécessiteraient en plus de manipuler trois langages différents : en plus du C++ utilisé dans le reste de la base de code, le décodeur est décrit dans un DSL _ad-hoc_, et les protocoles de cache sont eux spécifiés dans un _autre_ DSL _ad-hoc_ (appelé "SLICC"), à l'aide de machines à état et de files de messages.
 
 #let ft_gem5_docs = [
   Documentation qui est, d'ailleurs, souvent obsolète, incomplète, ou même inexistante, et est éparpillée en une kyrielle de forme (référence technique, documentation traditionnelle, tutoriels, cours, slides, exercices, _autre_ référence technique, etc.) ; peut-être ont-ils pris la carte de #link("https://diataxis.fr/")[Diátaxis] un peu trop littéralement ?
