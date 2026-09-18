@@ -64,4 +64,3 @@
 
 #pagebreak(weak: true)
 #include "parts/a.summary.typ"
-#pagebreak()
