@@ -83,9 +83,39 @@ Avec ceci, nous pouvons définir nos nouvelles instructions aussi aisément que 
 - j'ai choisi de modifier une opti existante, parce que plus facile, rapide, et mieux testé
 - il fallait faire gaffe de bien transférer toutes les infos, car autrement on a des mauvais/faux résultats avec l'AA
 
-== validation (ajouter des tests)
+== Validation par des tests unitaires
 
-- même si les outils llvm sont très bien, ils manquent de documentation à jour, surtout sur les parties plus bas-niveau
-- notamment llc est très peu documenté et un peu dur à utiliser (beaucoup de trial-and-error pour réussir à avoir un fichier à tester)
-- les outils bas-niveau émettent beaucoup de données, qui sont souvent assez obscures, donc c'est dur de minimiser les tests
-- pour les scénarios plus "exotiques," il faut soit beaucoup de contexte/extra code, soit il faut mettre les mains dans le cambouis et essayer de tweak un test existant (autant ses instrs que ses métadonnées, qui sont encore plus obscures) jusqu'à ce qu'il fasse ce qu'on veut
+Notre passe d'optimisation sur le code Machine IR se situe au milieu du back-end et est généralement invoquée durant la fin de la compilation soit d'un fichier source C soit d'un fichier intermédiaire en LLVM IR ; il n'y a pas de format texte pour Machine IR exposé aux utilisateurs.
+Dans tous les cas, nous ne pouvons pas complètement isoler notre optimisation du reste du flot de compilation, car dans un vrai programme beaucoup d'accès mémoire sont ajoutés ou éliminés durant les passes du middle-end et du back-end, et nous devons également nous assurer que les instructions `stlw` ne sont pas modifiées par des transformations tardives.
+
+Inspecter l'exécution de notre passe de cache au milieu d'une exécution du back-end entier (invoqué avec l'outil `llc`) n'est pas complètement évident non plus, car les options principales activant des modes verbeux (spécifiquement `-debug` qui affiche les détails d'exécution des algorithmes et `-print-after-all` qui affiche le code du programme après chaque passe) sont _très_ verbeux et génèrent des fichiers de log de plusieurs milliers de lignes même pour des petits programmes source. Le format de ces logs est très variable et largement non documenté, assimilable à des séries de `print` internes à chaque passe.
+
+L'approche la plus courante pour évaluer les programmes a donc consisté à, manuellement, invoquer clang pour générer un programme intermédiaire au format LLVM IR à partir d'un code C ; ensuite, exécuter `llc` avec une option pour s'arrêter avant notre passe `riscv-load-store-opt` ; puis inspecter le code Machine IR, et modifier le programme intermédiaire itérativement pour minimiser la taille des fonctions et ramener la complexité à un niveau abordable. (Prendre en main LLVM IR pour écrire des tests à partir de zéro aurait ajouté un coût trop significatif au travail du stage.)
+
+#figure(
+  caption: [Test unitaire d'un load et store consécutifs sur la pile, optimisable en un `STLW`.]
+)[
+  ```
+  name: two_pairs_interlaced
+  body: |
+    bb.0:
+      ; CHECK-LABEL: name: two_pairs_interlaced
+      ; CHECK: $x1 = STLW $x2, 12
+      ; CHECK-NEXT: $x10 = STLW $x3, 0 :: (load (s32))
+      ; CHECK-NEXT: SW $x1, $x2, 12 :: (store (s32))
+      ; CHECK-NEXT: SW $x10, $x3, 0 :: (store (s32))
+      $x1 = LW $x2, 12 :: (load (s32))
+      $x10 = LW $x3, 0 :: (load (s32))
+      SW $x1, $x2, 12 :: (store (s32))
+      SW $x10, $x3, 0 :: (store (s32))
+  ```
+]<lst_unit_interlaced>
+
+Le résultat de cette minimisation est un ensemble de cas de test unitaires pour la passe d'optimisation du cache.
+On peut les tester automatiquement car pour valider la correction de ses transformations et découvrir les bugs au moment où ils sont introduits, LLVM a une suite de tests unitaires de non-régression qui est validée par le testeur automatique `llvm-lit`, et inclut lui un système pour exécuter des passes individuelles.
+Un exemple de ces test est montré dans le @lst_unit_interlaced : les lignes 9 à 12 décrivent le code avant la passe, constitué ici de deux paires load-store aliasées mais mélangées dans leur ordonnancement, et les lignes 5 à 8 décrivent le résultat attendu du test, où les instructions `LW` ou été correctement remplacés par des instructions `STLW` avec les mêmes opérandes.
+Le test ne valide pas le fait que le premier `LW` est aliasé au premier `SW` et le second `LW` est aliasé au second `SW` ; cette information est implicite.
+
+Nous validons la transformation sur des cas variés avec des instructions intermédiaires entre le load et le store, des inversions d'ordre (store puis load) qui sont exclus de l'optimisation, différents ordres d'instructions entre plusieurs paires aliasées, et différentes tailles d'accès entre autres.
+Certains tests échouent car, comme discuté dans la @sec_design, l'analyse d'alias est incomplète et renvoie "les pointeurs sont peut-être aliasés" dans des cas où il n'y a pas en fait pas d'intersection d'adresse.
+Ces écarts impliquent une légère perte de performances mais le programme reste correct, car la sémantique de `STLW` pour l'ISA est identique à `LW` : les différences sont micro-architecturales.
