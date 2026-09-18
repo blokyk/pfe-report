@@ -69,7 +69,11 @@ Une partie de ce qui fait la force de TableGen est bien sûr la capacité de dé
   ```
 ] <lst_tb_stload>
 
-Avec ceci, nous pouvons définir nos nouvelles instructions aussi aisément que les loads basiques de RISC-V. Grâce à l'infrastructure partagée de LLVM, cela signifie non seulement que nous pouvons utiliser ces instructions lorsqu'on écrit en l'assembleur RISC-V, mais aussi qu'on peut désassembler des binaires contenant ces instructions, qu'on peut les débugger, qu'on peut analyser l'impact de ces instructions sur le pipeline d'exécution du processeur, et, surtout, que l'on peut désormais émettre cette instruction lors de phase d'optimisation. Tout ça en moins de 20 lignes de déclarations !
+#let ft_vendor_ext = [
+  À noter qu'il y a bien un détail qu'on omet ici : ces instructions (ainsi que les optimisations discutés plus tard) sont conditionnées sur la présence d'une extension RISC-V, nommée `Xstld`, que nous avons définie nous même (toujours en TableGen, en environ 5 lignes). Ce changement est très procédural est peu intéressant techniquement, nous avons donc choisi de l'omettre du texte principal.
+]
+
+Avec ceci, nous pouvons définir nos nouvelles instructions aussi aisément que les loads basiques de RISC-V. Grâce à l'infrastructure partagée de LLVM, cela signifie non seulement que nous pouvons utiliser ces instructions lorsqu'on écrit en l'assembleur RISC-V#footnote(ft_vendor_ext) <ft_vendor_ext>, mais aussi qu'on peut désassembler des binaires contenant ces instructions, qu'on peut les débugger, qu'on peut analyser l'impact de ces instructions sur le pipeline d'exécution du processeur, et, surtout, que l'on peut désormais émettre cette instruction lors de phase d'optimisation. Tout ça en moins de 20 lignes de déclarations !
 
 == Ajout d'une optimisation dans LLVM
 

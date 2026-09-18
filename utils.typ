@@ -7,6 +7,13 @@
 
 #let zwj = "\u{200D}"
 
+#let far-footnote(label) = context {
+  let loc = locate(label)
+  let ft_num = counter(footnote).at(loc).first()
+
+  link(label)[note #ft_num, pg #loc.page()]
+}
+
 #let highlight-box(it, fill: auto, stroke: none, radius: 0pt) = box(
   fill: fill,
   stroke: stroke,
