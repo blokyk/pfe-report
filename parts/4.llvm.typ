@@ -132,7 +132,7 @@ Une fois ces différentes méthodes implémentées, nous pouvons enfin observer 
   ```
 ] <lst_simple_opti_asm>
 
-== Validation par des tests unitaires
+== Validation par des tests unitaires <sec_llvm_tests>
 
 Notre passe d'optimisation sur le code Machine IR se situe au milieu du back-end et est généralement invoquée durant la fin de la compilation (soit d'un fichier source C soit d'un fichier intermédiaire en LLVM IR). Dans tous les cas, nous ne pouvons pas complètement isoler notre optimisation du reste du flot de compilation, car dans un vrai programme beaucoup d'accès mémoire sont ajoutés ou éliminés durant les passes du middle-end et du back-end, et nous devons également nous assurer que les instructions `stlw` ne sont pas modifiées par des transformations tardives.
 

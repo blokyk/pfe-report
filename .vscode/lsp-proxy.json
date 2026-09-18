@@ -46,6 +46,17 @@
           "out-of-order",
           "memory-bound",
           "CPU-bound",
+          "clang",
+          "llc",
+          "llvm-lit",
+          "lld",
+          "TableGen",
+          "lldb",
+          "inaffecté",
+          "intrinsics",
+          "intrinsic",
+          "daily",
+          "dailys",
           ""
         ]
       },

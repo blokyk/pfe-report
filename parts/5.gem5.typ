@@ -37,7 +37,7 @@ Lorsque le processeur déclenche un accès mémoire il construit une *requête* 
     image("../assets/gem5-queues.svg") }
 ) <fig_gem5_cpu>
 
-== Implémenter une nouvelle technique... ou pas ?
+== Implémenter une nouvelle technique... ou pas ? <sec_gem5_impl>
 
 Un des problèmes majeurs avec cette architecture, que la @fig_gem5_cpu expose au grand jour, est que le composant (qui est juste un morceau de code) responsable de l'exécution des instructions est fortement découplé de celui qui gère le système mémoire. Le décodeur ne peut pas simplement appeler une fonction du système de cache, mais doit au contraire passer à travers plusieurs interfaces de communication, avec multiples couches d'encapsulation et d'abstraction. Ainsi, une simple lecture mémoire doit d'abord être décodée par l'unité d'exécution, puis ce dernier doit envoyer un paquet (potentiellement avec certains flags) contenant une requête (elle aussi avec certains autres flags) destinée au contrôleur mémoire du processeur, qui sera généralement ensuite traduite en une représentation interne (toujours avec différents flags) puis transmise au système de cache.
 
