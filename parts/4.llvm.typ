@@ -69,17 +69,18 @@ Une partie de ce qui fait la force de TableGen est bien sûr la capacité de dé
   ```
 ] <lst_tb_stload>
 
-Avec ceci, nous pouvons définir nos nouvelles instructions aussi aisément que les loads basiques de RISC-V.
+Avec ceci, nous pouvons définir nos nouvelles instructions aussi aisément que les loads basiques de RISC-V. Grâce à l'infrastructure partagée de LLVM, cela signifie non seulement que nous pouvons utiliser ces instructions lorsqu'on écrit en l'assembleur RISC-V, mais aussi qu'on peut désassembler des binaires contenant ces instructions, qu'on peut les débugger, qu'on peut analyser l'impact de ces instructions sur le pipeline d'exécution du processeur, et, surtout, que l'on peut désormais émettre cette instruction lors de phase d'optimisation. Tout ça en moins de 20 lignes de déclarations !
 
-== ajouter une opti dans llvm
+== Ajout(?) d'une optimisation dans LLVM
 
-// - l'analyse d'alias est facilement accessible dans llvm, youpi!
-// Cependant, cette indécidabilité n'est pas le seul problème avec l'analyse d'alias : sans surprise, les différents algorithmes @type_aa @svf_aa @dyck_aa tentant de l'implémenter sont en plus très complexes. Heureusement, LLVM inclut déjà une multitude d'implémentation, dont il combine les résultats en une seule API, notamment la classe `AAResult`.
+Maintenant que nous avons donné à LLVM la _capacité_ de générer cette instruction, il nous reste à lui donner une _raison_ de le faire. Comme discuté dans la @sec_design_input, l'approche que nous privilégions est entièrement basée sur l'idée de détecter automatiquement les scénarios où ces instructions seraient bénéfiques. Dans la @sec_design_opti, nous avons décidé de placer cette optimisation au niveau du back-end, mais il y a un dernier choix qu'il nous reste à faire : comment souhaitons-nous _ajouter_ notre optimisation ?
 
-- trois choix:
-  - nouvelle opti hors-llvm
-  - nouvelle opti dans llvm
-  - modification d'opti dans llvm
+LLVM est prévu pour être facilement extensible, notamment quand il en vient aux optimisations. Ainsi, il est possible d'écrire un "plugin" qu'on peut attacher dynamiquement à LLVM pour venir implémenter de nouvelles optimisations. Bien que ça puisse être très utile pour des optimisations plus haut-niveau, dans notre cas ceci perd de son utilité, puisqu'on a déjà dû modifier le code de LLVM directement pour ajouter nos instructions. En plus de cela, les "plugins" sont généralement légèrement plus difficile à écrire et requièrent plus d'effort à la fois du côté du créateur que du côté de l'utilisateur. On peut donc écarter la piste d'une optimisation externe.
+
+Il semblerait donc logique de simplement ajouter une toute nouvelle passe d'optimisation qui aurait pour seul rôle de scanner les différentes paires de lectures-écritures. Cependant, en prenant un peu de temps pour explorer les optimisations existantes, on s'aperçoit vite que nous ne sommes pas les premiers à avoir eu une idée d'optimisation nécessitant ce type d'analyse. En effet, plusieurs extensions RISC-V ayant pour but d'ajouter des types de lectures de plus en plus nuancés existent. Par exemple, l'extension `Xqcilsm` de Qualcomm ajoute des instructions permettant d'effectuer l'équivalent de plusieurs lectures ou écriture en une seule instruction, et il existe donc une passe d'optimisation, `RISCVLoadStoreOpt`, qui a, entre autre, pour but de trouver des groupes d'instructions qui pourrait être remplacées. Il est donc raisonnable de modifier cette passe existante pour lui permettre d'également générer nos nouvelels instructions, plutôt que de réimplémenter ce qui finirait pas être semsiblement le même code.
+
+Utiliser une passe d'optimisation existante a aussi un autre avantage : elle permet de réutiliser des données d'analyses déjà faite sans avoir à les recalculer. Notamment, `RISCVLoadStoreOpt` a, tout comme nous, besoin de faire de l'analyse d'alias. Comme discuté dans la @sec_design_opti, ce type d'analyse est indécidable, mais ce n'est pas son seul problème : sans surprise, les différents algorithmes @type_aa @svf_aa @dyck_aa tentant de l'implémenter sont en plus très complexes et couteux. Heureusement, en tant qu'infrastructure de compilation mature, LLVM inclut déjà une multitude d'implémentations, dont il combine les résultats en une seule API. Cette API, cependant, n'est pas forcément facile à utiliser, et peut être bien couteuse si elle est mal utilisée. Ainsi, utiliser une passe d'optimisation existante nous permet également de gagner du temps de développement _et_ d'entraîner une perte de temps lors de la compilation.
+
 - j'ai choisi de modifier une opti existante, parce que plus facile, rapide, et mieux testé
 - il fallait faire gaffe de bien transférer toutes les infos, car autrement on a des mauvais/faux résultats avec l'AA
 
