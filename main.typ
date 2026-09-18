@@ -65,5 +65,3 @@
 #pagebreak(weak: true)
 #include "parts/a.summary.typ"
 #pagebreak()
-
-#include "parts/b.annex.typ"
