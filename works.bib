@@ -297,3 +297,33 @@
   location = {Austin, Texas},
   series = {SE-HPCCSE '15}
 }
+@article{build_systems,
+  author = {Mokhov, Andrey and Mitchell, Neil and Peyton Jones, Simon},
+  title = {Build systems {\`a} la carte},
+  year = {2018},
+  issue_date = {September 2018},
+  publisher = {Association for Computing Machinery},
+  address = {New York, NY, USA},
+  volume = {2},
+  number = {ICFP},
+  url = {https://doi.org/10.1145/3236774},
+  doi = {10.1145/3236774},
+  abstract = {Build systems are awesome, terrifying -- and unloved. They are used by every developer around the world, but are rarely the object of study. In this paper we offer a systematic, and executable, framework for developing and comparing build systems, viewing them as related points in landscape rather than as isolated phenomena. By teasing apart existing build systems, we can recombine their components, allowing us to prototype new build systems with desired properties.},
+  journal = {Proc. ACM Program. Lang.},
+  month = jul,
+  articleno = {79},
+  numpages = {29},
+  keywords = {algorithms, build systems, functional programming}
+}
+@phdthesis{nix,
+  title = "The Purely Functional Software Deployment Model",
+  abstract = "Software deployment is the set of activities related to getting software components to work on the machines of end users. It includes activities such as installation, upgrading, uninstallation, and so on. Many tools have been developed to support deployment, but they all have serious limitations with respect to correctness. For instance, the installation of a component can lead to the failure of previously installed components; a component might require other components that are not present; and it is generally difficult to undo deployment actions. The fundamental causes of these problems are a lack of isolation between components, the difficulty in identifying the dependencies between components, and incompatibilities between versions and variants of components. This thesis describes a better approach based on a purely functional deployment model, implemented in a deployment system called Nix. Components are stored in isolation from each other in a Nix store. Each component has a name that contains a cryptographic hash of all inputs that contributed to its build process, and the content of a component never changes after it has been built. Hence the model is purely functional. This storage scheme provides several important advantages. First, it ensures isolation between components: if two components differ in any way, they will be stored in different locations and will not overwrite each other. Second, it allows us to identify component dependencies. Undeclared build time dependencies are prevented due to the absence of {"}global{"} component directories used in other deployment systems. Runtime dependencies can be found by scanning for cryptographic hashes in the binary contents of components, a technique analogous to conservative garbage collection in programming language implementation. Since dependency information is complete, complete deployment can be performed by copying closures of components under the dependency relation. Developers and users are not confronted with components' cryptographic hashes directly. Components are built automatically from Nix expressions, which describe how to build and compose arbitrary software components; hashes are computed as part of this process. Components are automatically made available to users through {"}user environments{"}, which are synthesised sets of activated components. User environments enable atomic upgrades and rollbacks, as well as different sets of activated components for different users. Nix expressions provide a source-based deployment model. However, source-based deployment can be transparently optimised into binary deployment by making pre-built binaries (keyed on their cryptographic hashes) available in a shared location such as a network server. This is referred to as transparent source/binary deployment. The purely functional deployment model has been validated by applying it to the deployment of more than 278 existing Unix packages. In addition, this thesis shows that the model can be applied naturally to the related activities of continuous integration using build farms, service deployment and build management.",
+  author = "E. Dolstra",
+  year = "2006",
+  month = jan,
+  day = "18",
+  language = "Undefined/Unknown",
+  isbn = "90-393-4130-3",
+  type = "Doctoral thesis 1 (Research UU / Graduation UU)",
+  school = "Utrecht University",
+}
