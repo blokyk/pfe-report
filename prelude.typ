@@ -24,10 +24,12 @@
     // we can't just #show: lower, because then the numbering of the ref is also lower, which isn't ok for "A.III." type numberings
     // we can't just #set ref(supplement: ...) either because code line refs are hacky and break if we do that
     let el = it.element;
-    if el == none or not el.has("supplement") { return it; }
-
-    show el.supplement.text: lower
-    it
+    if el != none and el.has("supplement") and el.supplement.has("text") {
+      show el.supplement.text: lower
+      it
+    } else {
+      it
+    }
   }
   // ... EXCEPT biblio refs, which are distinguishable by
   // their lack of element (and because of typst show-rule scoping, the

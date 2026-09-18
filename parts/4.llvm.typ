@@ -49,7 +49,7 @@ Comme nous avons décidé dans la @sec_design_opti d'opérer à bas-niveau, nos 
   ```
 ] <lst_tb_sample>
 
-Une partie de ce qui fait la force de TableGen est bien sûr la capacité de définir ses propres modèles. Ainsi, tout comme LLVM déclare déjà un modèle `Load_ri` pour pouvoir facilement regrouper les loads basiques, nous pouvons définir nous même un modèle `StLoad`, qui permettra de factoriser les propriétés communes de nos nouvelles instructions. Le @lst_tb_stload démontre une version légèrement simplifiée de la définition de ce nouveau modèle, où l'on décrit non seulement l'encodage de notre instruction (en utilisant `RVInstI` comme modèle de base, qui utilise l'encodage type-I, et en décrivant l'opcode à la @lst_tb_stload_encoding), mais aussi ses opérandes (@lst_tb_stload_io) et sa syntaxe assembleur (@lst_tb_stload_asm).
+Une partie de ce qui fait la force de TableGen est bien sûr la capacité de définir ses propres modèles. Ainsi, tout comme LLVM déclare déjà un modèle `Load_ri` pour pouvoir facilement regrouper les loads basiques, nous pouvons définir nous même un modèle `StLoad`, qui permettra de factoriser les propriétés communes de nos nouvelles instructions. Le @lst_tb_stload démontre une version légèrement simplifiée de la définition de ce nouveau modèle, où l'on décrit non seulement l'encodage de notre instruction (en utilisant `RVInstI` comme modèle de base, qui utilise l'encodage type-I, et en décrivant l'opcode à la @lst_tb_stload_encoding), mais aussi ses opérandes (@lgn_tb_stload_io) et sa syntaxe assembleur (@lgn_tb_stload_asm).
 
 #figure(
   caption: [Déclaration simplifiée du modèle `StLoad` qui sert de base à nos nouvelles instructions]
@@ -58,8 +58,8 @@ Une partie de ce qui fait la force de TableGen est bien sûr la capacité de dé
    class StLoad<bits<3> funct3, string name>
       : RVInstI<
             funct3, OPC_CUSTOM_2, // #<lst_tb_stload_encoding>
-            (outs GPR:$rd), (ins BasePtr:$rs1, simm12_lo:$imm12), // #<lst_tb_stload_io>
-            name, "$rd, ${imm12}(${rs1})" // #<lst_tb_stload_asm>
+            (outs GPR:$rd), (ins BasePtr:$rs1, simm12_lo:$imm12), // #<lgn_tb_stload_io>
+            name, "$rd, ${imm12}(${rs1})" // #<lgn_tb_stload_asm>
         >
     {
       let hasSideEffects = false;
@@ -77,12 +77,58 @@ Maintenant que nous avons donné à LLVM la _capacité_ de générer cette instr
 
 LLVM est prévu pour être facilement extensible, notamment quand il en vient aux optimisations. Ainsi, il est possible d'écrire un "plugin" qu'on peut attacher dynamiquement à LLVM pour venir implémenter de nouvelles optimisations. Bien que ça puisse être très utile pour des optimisations plus haut-niveau, dans notre cas ceci perd de son utilité, puisqu'on a déjà dû modifier le code de LLVM directement pour ajouter nos instructions. En plus de cela, les "plugins" sont généralement légèrement plus difficile à écrire et requièrent plus d'effort à la fois du côté du créateur que du côté de l'utilisateur. On peut donc écarter la piste d'une optimisation externe.
 
-Il semblerait donc logique de simplement ajouter une toute nouvelle passe d'optimisation qui aurait pour seul rôle de scanner les différentes paires de lectures-écritures. Cependant, en prenant un peu de temps pour explorer les optimisations existantes, on s'aperçoit vite que nous ne sommes pas les premiers à avoir eu une idée d'optimisation nécessitant ce type d'analyse. En effet, plusieurs extensions RISC-V ayant pour but d'ajouter des types de lectures de plus en plus nuancés existent. Par exemple, l'extension `Xqcilsm` de Qualcomm ajoute des instructions permettant d'effectuer l'équivalent de plusieurs lectures ou écriture en une seule instruction, et il existe donc une passe d'optimisation, `RISCVLoadStoreOpt`, qui a, entre autre, pour but de trouver des groupes d'instructions qui pourrait être remplacées. Il est donc raisonnable de modifier cette passe existante pour lui permettre d'également générer nos nouvelles instructions, plutôt que de réimplémenter ce qui finirait pas être sensiblement le même code.
+Il semblerait donc logique de simplement ajouter une toute nouvelle passe d'optimisation qui aurait pour seul rôle de scanner les différentes paires de lectures-écritures. Cependant, en prenant un peu de temps pour explorer les optimisations existantes, on s'aperçoit vite que nous ne sommes pas les premiers à avoir eu une idée d'optimisation nécessitant ce type d'analyse. En effet, plusieurs extensions RISC-V ayant pour but d'ajouter des types de lectures de plus en plus nuancés existent. Par exemple, l'extension `Xqcilsm` de Qualcomm ajoute des instructions permettant d'effectuer l'équivalent de plusieurs lectures ou écriture en une seule instruction, et il existe donc une passe d'optimisation, `RISCVLoadStoreOpt`, qui a, entre autre, pour but de trouver des groupes d'instructions qui pourrait être remplacées. Il est donc raisonnable de modifier cette passe existante pour lui permettre d'également générer nos nouvelles instructions, plutôt que de réimplémenter ce qui finirait par être sensiblement le même code.
 
-Utiliser une passe d'optimisation existante a aussi un autre avantage : elle permet de réutiliser des données d'analyses déjà faite sans avoir à les recalculer. Notamment, `RISCVLoadStoreOpt` a, tout comme nous, besoin de faire de l'analyse d'alias. Comme discuté dans la @sec_design_opti, ce type d'analyse est indécidable, mais ce n'est pas son seul problème : sans surprise, les différents algorithmes @type_aa @svf_aa @dyck_aa tentant de l'implémenter sont en plus très complexes et couteux. Heureusement, en tant qu'infrastructure de compilation mature, LLVM inclut déjà une multitude d'implémentations, dont il combine les résultats en une seule API. Cette API, cependant, n'est pas forcément facile à utiliser, et peut être bien couteuse si elle est mal utilisée. Ainsi, utiliser une passe d'optimisation existante nous permet également de gagner du temps de développement _et_ d'entraîner une perte de temps lors de la compilation.
+Utiliser une passe d'optimisation existante a aussi un autre avantage : elle permet de réutiliser des données d'analyses déjà faite sans avoir à les recalculer. Notamment, `RISCVLoadStoreOpt` a, tout comme nous, besoin de faire de l'analyse d'alias. Comme discuté dans la @sec_design_opti, ce type d'analyse est indécidable, mais ce n'est pas son seul problème : sans surprise, les différents algorithmes @type_aa @svf_aa @dyck_aa tentant de l'implémenter sont en plus très complexes et coûteux. Heureusement, en tant qu'infrastructure de compilation mature, LLVM inclut déjà une multitude d'implémentations, dont il combine les résultats en une seule API. Cette API, cependant, n'est pas forcément facile à utiliser, et peut être bien coûteuse si elle est mal utilisée. Ainsi, utiliser une passe d'optimisation existante nous permet également de gagner du temps de développement _et_ d'éviter d'entraîner une perte de temps lors de la compilation.
 
-- j'ai choisi de modifier une opti existante, parce que plus facile, rapide, et mieux testé
-- il fallait faire gaffe de bien transférer toutes les infos, car autrement on a des mauvais/faux résultats avec l'AA
+Grâce à cette infrastructure déjà existante, l'implémentation de notre optimisation s'est résumé en la modification et ajout de quelques fonctions :
+  + *`runOnMachineFunction`* a été modifiée pour scanner les instructions d'une fonction donnée et tenter de déclencher notre nouvelle optimisation à chaque _load_ rencontré.
+  + *`findMatchingStForLd`* part d'une instruction _load_ donnée en paramètre, et parcours l'ensemble des instructions suivantes (en tentant de gérer au mieux la nature parfois cyclique du flot de contrôle) à la recherche d'une instruction _store_ qui écrit à la même adresse (ce qui est vérifié en faisant une analyse d'alias sur les opérandes des deux instructions).
+  + *`convertLdToStld`* est appelée lorsqu'un _load_ est candidat à l'optimisation, et s'occupe de le remplacer par l'instruction `stl*` correspondante ; ceci inclut également la responsabilité de reproduire correctement les métadonnées et informations sémantiques de l'instruction originale.
+
+Une fois ces différentes méthodes implémentées, nous pouvons enfin observer le résultat de notre labour. Le @lst_simple_opti_sample illustre un exemple de code pouvant être optimisé : pour ici, on décrémente simplement une valeur en mémoire, mais, pour cela, il faut bien sûr d'abord _connaître_ la valeur. Ainsi, on a ici un parfait exemple de lecture-écriture, un candidat idéal pour notre optimisation. Le @lst_simple_opti_res montre un extrait du code Machine IR correspondant à cette même fonction, et comment il est affecté par l'optimisation que nous venons d'implémenter : le `LW` candidat a été remplacé par un `STLW`. Enfin, le @lst_simple_opti_asm donne les instructions RISC-V finales en assembleur, avec notre fameux `stlw`.
+
+#figure(
+  caption: [Exemple de code candidat à notre optimisation.]
+)[
+  #set box(width: 70%)
+
+  ```c
+  void list_remove_last(list_t* lst, int n) {
+    lst->count = lst->count - n;
+  }
+  ```
+] <lst_simple_opti_sample>
+
+#let old-box = highlight-box.with(fill: red.transparentize(80%))
+#let new-box = highlight-box.with(fill: green.transparentize(80%))
+
+#figure(
+  caption: [Extrait de Machine IR #old-box[avant] et #new-box[après] l'optimisation.]
+)[
+  #show "LW": old-box
+  #show "STLW": "STL\u{200D}W"
+  #show "STLW": new-box
+
+  ```patch
+  - $x5 = LW $x10, 0 :: (load (s32) from @ir.lst.count) // #<lgn_non_opt_load>
+  + $x5 = STLW $x10, 0 :: (load (s32) from @ir.lst.count) // #<lgn_opt_load>
+    $x6 = SUB $x5, $x11
+    SW $x6, $x10, 0 :: (store (s32) to @ir.lst.count) // #<lgn_non_opt_st>
+  ```
+] <lst_simple_opti_res>
+
+#figure(
+  caption: [Extrait du code assembleur final correspondant à notre fonction, maintenant que l'optimisation a été appliquée.]
+)[
+  #set box(width: 70%)
+
+  ```asm
+  stlw t0, 0(a0)
+  sub t1, t0, a1
+  sw t1, 0(a0)
+  ```
+] <lst_simple_opti_asm>
 
 == Validation par des tests unitaires
 
