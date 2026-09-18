@@ -78,11 +78,9 @@ Les résultats de la simulation qui nous intéressent le plus ici, ce sont les s
 
 Ce qu'on attend de ces statistiques, c'est que le nombre de messages échangés diminue (c'est, après tout, le but ultime de cette optimisation), que le nombre de requêtes uniques augmente pendant que le nombre de requêtes partagées diminue, et enfin que le temps total d'exécution, représenté par le nombre de ticks, diminue. À noter également que la somme des requêtes partagées vs. uniques ne devrait pas être la même entre les deux exécutions, car la version "non-optimisée" fait justement des requêtes partagées qui sont ensuite transformées en uniques.
 
-La @fig_bench_stats compare ces statistiques pour le programme du @lst_benchmark.
-Toutes les métriques évoluent dans la direction attendue ou désirée ; le temps d'exécution est plus faible (-1.48%), le nombre de messages entre caches également (-10.2%) ; et par effet du protocole de cohérence qui réagit à l'information que la lecture sera suivie d'une écriture en réservant la ligne de façon exclusive au coeur qui va écrire, le nombre de lignes partagées (i.e. présentes dans plusieurs caches) diminue (-44.4%) au profit du nombre de lignes exclusives (+50.0%).
+La @fig_bench_stats compare ces statistiques pour le programme du @lst_benchmark. Toutes les métriques évoluent dans la direction attendue ou désirée ; le temps d'exécution est plus faible (-1.48%), le nombre de messages entre caches également (-10.2%) ; et par effet du protocole de cohérence qui réagit à l'information que la lecture sera suivie d'une écriture en réservant la ligne de façon exclusive au coeur qui va écrire, le nombre de lignes partagées (i.e. présentes dans plusieurs caches) diminue (-44.4%) au profit du nombre de lignes exclusives (+50.0%).
 
-Le gain de temps de -1.48% peut sembler modeste mais est loin d'être négligeable ; dans le contexte des optimisations à la compilation, c'est un gain conséquent.
-Bien sûr, c'est un gain conséquent sur _un programme_ qui n'a pas encore été démontré de façon généralisée, mais c'est une preuve de concept appropriée pour justifier des expériences plus en profondeur dans la suite des travaux de Johan ou d'autres collaborateurs⋅ices.
+Le gain de temps de -1.48% peut sembler modeste mais est loin d'être négligeable ; dans le contexte des optimisations à la compilation, c'est un gain conséquent. Bien sûr, c'est un gain conséquent sur _un programme_ qui n'a pas encore été démontré de façon généralisée, mais c'est une preuve de concept appropriée pour justifier des expériences plus en profondeur dans la suite des travaux de Johan ou d'autres collaborateurs⋅ices.
 
 #figure(
   caption: [

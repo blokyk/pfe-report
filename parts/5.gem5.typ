@@ -31,10 +31,18 @@ Tous les composants qui interagissent dans le système mémoire le font à trave
 Lorsque le processeur déclenche un accès mémoire il construit une *requête* qui est ensuite transportée par le système mémoire dans le réseau de ports par des échanges de *paquets*, qui sont essentiellement des interactions mémoire point-à-point permettant, en agrégat, d'amener la requête à son destinataire et de rapatrier la réponse.
 
 #figure(
-  caption: [Représentation simplifiée des échanges CPU/mémoire dans gem5 (basée sur #link("https://gem5bootcamp.github.io/gem5-bootcamp-env/modules/developing%20gem5%20models/instructions/")[[1]], #link("https://www.gem5.org/documentation/general_docs/ruby/")[[2]]).],
-  { image("../assets/gem5-cpu-memory-system.svg")
-    "Notation des files de paquets entre chaque paire de ports :"
-    image("../assets/gem5-queues.svg") }
+  caption: [
+    #let instr = "https://gem5bootcamp.github.io/gem5-bootcamp-env/modules/developing%20gem5%20models/instructions/"
+    #let ruby = "https://www.gem5.org/documentation/general_docs/ruby/";
+    Représentation simplifiée des échanges CPU/mémoire dans gem5 (basée sur #link(instr)[[1]], #link(ruby)[[2]]).
+  ],
+  [
+    #image("../assets/gem5-cpu-memory-system.svg", width: 80%)
+
+    Notation des files de paquets entre chaque paire de ports :
+
+    #image("../assets/gem5-queues.svg", width: 35%)
+  ]
 ) <fig_gem5_cpu>
 
 == Implémenter une nouvelle technique... ou pas ? <sec_gem5_impl>
@@ -65,7 +73,7 @@ Il est assez vite devenu apparent qu'un concept similaire existait pour les arch
 Cependant, après plusieurs semaines de recherches et tests, il est vite devenu clair qu'en réalité, tout était déjà en place pour pouvoir tester notre design initial : l'instruction n'était pas catégorisée comme atomique juste à cause de ce flag, le système mémoire était capable de traduire correctement des requêtes le contenant#footnote(ft_rmw_store), et CHI était déjà capable de modéliser cette situation sans modification. La seule tâche restante était alors d'ajouter le support pour notre instruction, et de lui attacher le bon flag. Pour ceci, il suffisait de modifier le fichier spécifiant le décodeur RISC-V, `src/arch/riscv/isa/decoder.isa`. Le DSL utilisé par celui-ci est assez peu documenté, mais le code à ajouter est surprenamment simple : le @lst_gem5_decoder_patch montre la spécification de notre instruction `stlb`, où l'on utilise `mem_flags` pour spécifier que la requête mémoire doit avoir le flag donné, le fameux `READ_MODIFY_WRITE` (une meilleure explicitation du DSL est hors de portée de ce rapport).
 
 #figure(
-  caption: [Un extrait du code ajouté au décodeur RISC-V de gem5 pour supporter une de nos nouvelles instructions, `stlb`.]
+  caption: [Un extrait du code ajouté au décodeur RISC-V \ de gem5 pour supporter une de nos nouvelles instructions, `stlb`.]
 )[
   ```ts
   0x16: decode FUNCT3 {
@@ -86,7 +94,7 @@ Cependant, après plusieurs semaines de recherches et tests, il est vite devenu 
 Bien que la plupart du code gem5 soit écrit en C++ (un peu plus de 88%), l'interface publique de gem5 est en Python: la mise en place d'une simulation se fait en instanciant des objets de différentes classes Python#footnote(ft_cpp_py_classes), représentant chacun différents composants du système à simuler. Il est possible de régler manuellement chaque composant individuel et de les "raccorder" comme on le souhaite, mais il existe aussi des classes utilitaires telles que `RiscvBoard` lorsqu'on désire une configuration basique. Par exemple, le @lst_base_gem5_conf crée un système avec un processeur mono-coeur 1GHz RISC-V utilisant le modèle `TimingSimpleCPU`, 1Go de RAM DDR3 1600 MHz, et aucun cache, grâce à la classe `RiscvBoard`, qui s'occupe d'établir les connections et d'initialiser chaque composant lors de la simulation.
 
 #figure(
-  caption: [Une configuration basique d'un système RISC-V.]
+  caption: [Une configuration basique d'un système RISC-V.],
 )[
   ```py
   from gem5.components.boards.riscv_board import RiscvBoard
@@ -94,6 +102,7 @@ Bien que la plupart du code gem5 soit écrit en C++ (un peu plus de 88%), l'inte
   from gem5.components.processors.base_cpu_core import BaseCPUCore
   from gem5.components.processors.base_cpu_processor import BaseCPUProcessor
   from gem5.components.memory.single_channel import SingleChannelDDR3_1600
+
   from gem5.isas import ISA
 
   from m5.objects.RiscvCPU import RiscvTimingSimpleCPU
