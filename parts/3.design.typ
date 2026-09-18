@@ -4,7 +4,7 @@
 
 Avec ce contexte et cette problématique établis, nous pouvons désormais nous tourner vers la conception d'une solution. Comme détaillé dans la section précédent, la thèse de Johan Söderström @johan_phd nécessite d'établir un moyen de communication entre le programmeur et le système de cache. Cependant, il n'est jusqu'ici pas évident quelle forme exacte cette communication devrait prendre. Cette section décrit la conception de cette solution d'un relativement haut niveau, et laisse aux sections @sec_llvm[] et @sec_gem5[] le rôle d'expliquer les détails d'implémentation.
 
-== #todo[Expression par procuration] <sec_design_input>
+== Expression du besoin de l'utilisatrice <sec_design_input>
 
 Avant de réfléchir à une forme de communication destinée au cache, il faut d'abord réfléchir à une forme destinée au programmeur lui-même. En effet, bien que les résultats finaux soient souvent les mêmes, les programmes modernes sont écrits dans une myriade de langages différents qui ont, pour la plupart, pour but d'exprimer au mieux les désirs et idées de l'utilisateur. Une partie de cet objectif requiert d'inférer plus ou moins d'informations sur le comportement voulu par le programmeur. Là où certains langages se réservent entièrement le choix de moyen de stockage de données en mémoire (par ex. JavaScript, Python), d'autres demandent d'expliciter la démarche d'allocation (par ex. C, Zig), et d'autres encore laissent le choix à l'utilisateur tout en ayant des moyens de l'influencer (par ex. ```c register``` en C permettant d'explicitement stocker une valeur en registre, tandis que le reste des valeurs peuvent être stockées soit en registre, soit en pile, à la liberté de l'implémentation).
 
@@ -17,7 +17,7 @@ Dans notre cas, il est important de préciser que, idéalement, l'utilisateur n'
 
 Ainsi, il semblerait que la manière la plus idéale d'implémenter cette solution est de manière transparente à l'utilisateur : les lectures qui sont suivies d'écritures seront détectées automatiquement par le compilateur, sans annotation ou action du programmeur.
 
-== #todo[Forme finale du code]
+== Format de l'information communiquée au processeur
 
 Maintenant que nous avons établi comment le logiciel exprimera sa connaissance du comportement des accès mémoire du programme, on peut se tourner à la communication de cette information envers le système de cache.
 
@@ -57,7 +57,7 @@ Le code généré par le front-end est typiquement très inefficace et passe don
 
 C'est là qu'on voit la dualité fondamentale de cette pipeline : les transformations qui veulent accéder à des informations structurées ou annotées dans le code source doivent se faire tôt, dans les couches hautes ; à l'inverse, les transformations qui ont besoin de contrôle fin sur les instructions émises dans le programme assembleur doivent se faire tard, dans les couches basses. C'est une autre raison d'écarter l'idée d'annotation déclenchant cette transformation dans la @sec_design_input : elle nécessiterait de transporter les annotations émises à haut-niveau vers le code bas-niveau ; cette tâche est suffisamment complexe pour nécessiter plusieurs années de recherche @seb_llvm pour "seulement" quelques informations basiques.
 
-== #todo[plan pour l'opti] <sec_design_opti>
+== Solution retenue : pour la compilation <sec_design_opti>
 
 Étant donné cette limitation, nous devons désormais faire un choix exact d'où, sur ce spectre d'informations, placer notre nouvelle optimisation. Pour rapel, cette optimisation doit pouvoir détecter les lectures à partir d'emplacements mémoire sur lesquels on écrit un peu plus tard. Notons d'abord les prérequis de cette optimisation :
   + elle doit pouvoir inspecter n'importe quelle lecture mémoire, c.-à-d. que n'importe quel instructions load du binaire final (et de même avec les _écritures_ en mémoire)
@@ -75,11 +75,11 @@ Ce problème est exactement ce que l'analyse d'alias#footnote(ft_alias) tente de
 
 Il est donc maintenant évident que le seul emplacement possible pour notre optimisation est le plus proche possible de la dernière passe de génération d'instructions RISC-V. Celle-ci itèrera à travers chaque paire d'un load et d'un store, vérifiera si ceux-ci se réfèrent à un même emplacement mémoire, et si c'est le cas, remplacera le load original par notre nouvelle instruction équivalente.
 
-== #todo[maintenant, on passe le relai au hardware] <sec_design_hw>
+== Solution retenue : pour l'évaluation par simulation <sec_design_hw>
 
 Évidemment, pouvoir générer ces instructions ne suffit pas. L'autre partie de ce stage est aussi d'évaluer l'impact sur les performances d'exécution d'un programme. Dans un monde idéal, cela se ferait sur un réel système, avec un processeur modifié pour supporter nos `stlw`, pour nous donner des mesures exactes de gains de performance réalistes. Cependant, en pratique, ce type de tests ne serait pas forcément aussi utile qu'on aimerait le croire.
 
-La conception de micro-processeurs est un domaine qui exige #todo[un niveau de minimum élevé], et même des minuscules modifications peuvent vite engouffrer des semaines entières dans une chasse aux bugs infinie. De plus, même avec tout le savoir au monde, le temps d'itération est souvent très long, certains designs pouvant prendre des heures à synthétiser malgré leurs petites tailles. Ainsi, l'idée de tester directement sur du matériel n'est pas envisageable.
+La conception de micro-processeurs est un domaine qui exige un niveau de technicité élevé, et même des minuscules modifications peuvent vite engouffrer des semaines entières dans une chasse aux bugs infinie. De plus, même avec tout le savoir au monde, le temps d'itération est souvent très long, certains designs pouvant prendre des heures à synthétiser malgré leurs petites tailles. Ainsi, l'idée de tester directement sur du matériel n'est pas envisageable.
 
 #let ft_dont_even_think_abt_it = [
   Une leçon que j'ai déjà apprise lors mon dernier stage, après avoir innocemment essayé d'utiliser un design de processeur vectoriel pour tester du code que j'avais écrit dans le cadre de mon sujet. J'ai heureusement vite remarqué les sables mouvants dans lesquels je m'étais enlisée, et m'en suis échappée.
