@@ -26,7 +26,8 @@ Inévitablement au fur et à mesure de l'exécution, le cache se remplit donc ju
 
 #figure(
   image("../assets/memory-hierarchy.svg", width: 85%),
-  caption: [Représentation de la "hiérarchie de mémoire".]
+  caption: [Représentation de la "hiérarchie de mémoire".],
+  placement: top
 ) <fig_simple_mem_hier>
 
 De la même façon, _écrire_ est aussi bien plus rapide dans le cache ; il y a toutefois des techniques plus variées (dites "politiques d'écriture") pour gérer les effets associés qui, comme on va le voir plus tard, sont la source de certains maux de tête. Par exemple, si l'on s'arrête à une écriture dans le cache (politique _copy-back_), l'écriture est rapide mais la mémoire centrale ne contient pas la donnée réellement manipulée par le programme ; or, si l'on pousse chaque écriture dans la mémoire centrale aussi pour synchroniser (politique _write-through_), le trafic mémoire augmente significativement et annule une partie des gains de performances liés au cache.
@@ -35,7 +36,8 @@ Le cache s'avère en pratique crucial pour les performances de programmes ; une 
 
 #figure(
   image("../assets/cache-hierarchy.svg"),
-  caption: [Représentation d'une "hiérarchie de cache" typique à 3 niveaux.]
+  caption: [Représentation d'une "hiérarchie de cache" typique à 3 niveaux.],
+  placement: top
 ) <fig_multi_mem_hier>
 
 == Multiples caches, multiples problèmes
@@ -48,14 +50,15 @@ Cependant, en parallèle de l'évolution des caches, les CPUs ont elles aussi é
 
 Cette mitose a bien sûr demandé de repenser une bonne partie des choix macro- et micro-architecturaux qui étaient jusqu'ici standards. Un des composants affectés par ce changement a été le cache : il faut maintenant faire un choix entre avoir un seul cache partagé entre tous les coeurs, ou assigner des caches séparés (ou "privés") à chaque coeur#footnote(ft_shared_l2).
 
+#figure(
+  image("/assets/incoherency.svg"),
+  caption: [Un exemple d'incohérence entre deux caches *privés*.],
+  placement: top
+) <fig_incohenrency>
+
 Utiliser des caches partagés est généralement plus lent, étant donné que chaque opération sur le cache peut potentiellement demander de négocier pour s'assurer qu'il n'y a pas plusieurs coeurs qui tentent d'écrire au même endroit en même temps (ce qu'on appelle une _contention d'écriture_). À cela vient s'ajouter le compromis entre stockage et vitesse mentionné à la fin de la @sec_what_is_cache : si on rend la taille du cache proportionnelle au nombre de coeurs, alors on réduit sa vitesse d'accès pour tout le monde, alors que si on souhaite garder une vitesse attirante, il faudra réduire la taille du cache, et donc augmenter la _contention de stockage_ (plusieurs coeurs se battront pour obtenir assez de place pour mettre en cache les données dont ils ont besoin), ce qui est un problème pour les systèmes modernes où il est très commun d'exécuter plusieurs applications simultanément en répartissant leurs tâches sur différents coeurs. Étant donnés ces compromis, cette architecture est de moins en moins utilisée, et il n'est pas rare de voir des processeurs modernes où seul le dernier niveau de cache (i.e. L3 ou L4) est partagé.
 
 Des caches privés évitent ces problèmes, en plaçant chaque coeur au contrôle d'une unité de cache, et en divisant une même quantité de stockage entre plusieurs caches, pour qu'ils soient individuellement plus rapides. Cependant, cette séparation amène un nouveau problème : maintenant qu'il n'y a plus d'unité centrale, il n'y a plus de _source de vérité_ partagée non plus. Ainsi, dans le cas où deux coeurs travaillent sur une même donnée en mémoire, si l'un d'entre eux la modifie, il n'y a désormais plus de garantie que l'autre coeur sera conscient de cette modification et utilisera la bonne "version" de la donnée. La @fig_incohenrency illustre un cas où deux coeurs traitent la même donnée (ici une variable `msg` stockée en mémoire), qui a été mise en cache dans leurs caches privés respectifs au préalable ; le coeur 1 tente de modifier ce message, ce qui change sa valeur dans son cache privé, mais cette mutation n'a pas été reproduite dans le cache du coeur 2, ce qui fait que, lorsque ce dernier lit la valeur de `msg`, son cache lui retourne une valeur maintenant obsolète.
-
-#figure(
-  image("/assets/incoherency.svg"),
-  caption: [Un exemple d'incohérence entre deux caches *privés*.]
-) <fig_incohenrency>
 
 // - exemple avec `struct list { int count; int* data; }` (cf https://docs.kernel.org/kernel-hacking/false-sharing.html)
 

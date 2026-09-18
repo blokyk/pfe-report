@@ -35,7 +35,8 @@ Bien que nous ayons mentionné rapidement l'idée d'une passe d'optimisation lor
 
 #figure(
   caption: [Une vue _extrêmement_ simplifiée des trois étapes d'un compilateur.],
-  image("/assets/compiler.svg", width: 75%)
+  image("/assets/compiler.svg", width: 75%),
+  placement: top
 ) <fig_comp_pipeline>
 
 Historiquement les compilateurs traduisaient directement le code source dans le langage cible (dans notre cas l'assembleur RISC-V), mais cette approche ne passe pas à l'échelle quand le nombre de langages source et d'architectures cible augmentent. C'est ce qui a motivé l'introduction des _représentations intermédiaires_, structurant le compilateur en trois étapes illustrées dans la @fig_comp_pipeline :
