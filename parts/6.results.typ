@@ -34,7 +34,7 @@ Reste à admettre que ce benchmark est très loin d'être parfait : en plus d'ê
 
 Comme discuté précédemment, nous n'avons pas besoin de modifier le programme pour activer ou désactiver cette optimisation. À la place, c'est maintenant, au moment de la compilation, que nous devons faire ce choix. Pour cela, nous pouvons simplement spécifier que notre cible de compilation support nos nouvelles instructions, avec `-march=rv64i_xstld`#footnote[Voir #far-footnote(<ft_vendor_ext>).], et l'optimisation s'activera toute seule. Pour générer un binaire sans cette optimisation, on peut alors simplement ne _pas_ spécifier `_xstld`.
 
-Après avoir compilé ces binaires, on peut les déassembler, pour vérifier que l'optimisation s'est bien déclenchée. La @fig_decomp_diff montre la compilation de ces des deux versions du benchmark (sans et avec optimisation), puis l'inspection des différences de désassemblage entre les deux binaires.
+Après avoir compilé ces binaires, on peut les désassembler, pour vérifier que l'optimisation s'est bien déclenchée. La @fig_decomp_diff montre la compilation de ces deux versions du benchmark (sans et avec optimisation), puis l'inspection des différences de désassemblage entre les deux binaires.
 
 #figure(
   caption: [Compilation et vérification],
@@ -65,7 +65,7 @@ Après avoir compilé ces binaires, on peut les déassembler, pour vérifier que
 
 == Mesure de performances avec gem5
 
-Nous avons désormais préparé les deux versions compilées de notre binaire. Il ne reste plus qu'à mesurer leurs performances avec gem5. Pour cela, nous utiliserons une configuration très similaire au @lst_final_gem5_conf, en utilisant le @lst_base_gem5_run (avec bien sûr un changement de nom de binaire) pour charger le binaire lancer la simulation.
+Nous avons désormais préparé les deux versions compilées de notre binaire. Il ne reste plus qu'à mesurer leurs performances avec gem5. Pour cela, nous utiliserons une configuration très similaire au @lst_final_gem5_conf, en utilisant le @lst_base_gem5_run (avec bien sûr un changement de nom de binaire) pour charger le binaire et lancer la simulation.
 
 #let ft_m5reader = [
   Celui-ci est dans un format textuel _ad-hoc_ plus ou moins structuré, mais il n'est pas difficile d'écrire un petit programme qui convertit fidellement ses données au format JSON. Nous n'irons pas dans les détails dans ce rapport, mais avoir ces statistiques sous une forme plus structurées est extrêmement, et permet d'automatiser une plus grande partie de ces mesures.
@@ -78,7 +78,11 @@ Les résultats de la simulation qui nous intéressent le plus ici, ce sont les s
 
 Ce qu'on attend de ces statistiques, c'est que le nombre de messages échangés diminue (c'est, après tout, le but ultime de cette optimisation), que le nombre de requêtes uniques augmentent pendant que le nombre de requêtes partagées diminue, et enfin que le temps total d'exécution, représenté par le nombre de ticks, diminue. À noter également que la somme des requêtes partagés vs. uniques ne devrait pas être la même entre les deux exécutions, car la version "non-optimisée" fait justement des requêtes partagés qui sont ensuite transformées en uniques.
 
-La @fig_bench_stats compare ces statistiques pour 
+La @fig_bench_stats compare ces statistiques pour le programme du @lst_benchmark.
+Toutes les métriques évoluent dans la direction attendue ou désirée ; le temps d'exécution est plus faible (-1.48%), le nombre de messages entre caches également (-10.2%) ; et par effet du protocole de cohérence qui réagit à l'information que la lecture sera suivie d'une écriture en réservant la ligne de façon exclusive au coeur qui va écrire, le nombre de lignes partagées (i.e. présentes dans plusieurs caches) diminue (-44.4%) au profit du nombre de lignes exclusives (+50.0%).
+
+Le gain de temps de -1.48% peut sembler modeste mais est loin d'être négligeable ; dans le contexte des optimisations à la compilation, c'est un gain conséquent.
+Bien sûr, c'est un gain conséquent sur _un programme_ qui n'a pas encore été démontré de façon généralisée, mais c'est une preuve de concept appropriée pour justifier des expérience plus en profondeur dans la suite des travaux de Johan ou d'autres collaborateurs⋅ices.
 
 #figure(
   caption: [
