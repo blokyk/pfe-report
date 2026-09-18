@@ -2,10 +2,7 @@
 
 == Résumé de la contribution
 
-L'objectif du stage était d'allier une extension du compilateur LLVM et une extension du simulateur gem5 pour prototyper une optimisation en co-conception logicielle/matérielle relative à le charge de travail du protocole de cohérence de caches.
-J'ai confirmé, par une preuve de concept, que l'idée est sensée, produit une amélioration des performances sur un exemple canonique où nous l'attendions, et qu'elle est implémentable dans ces outils de production périphériques au coeur de compétences de l'équipe.
-Mon analyse détaillée du fonctionnement de LLVM et gem5 m'a permis d'identifier précisément les outils déjà disponibles les plus pertinents (passe d'optimisation des accès mémoire, analyse d'alias, flag d'accès mémoire `READ_MODIFY_WRITE`) et de les mobiliser pour réaliser un prototype fonctionnel.
-Enfin, tout ce travail a été décemment documenté et packagé pour simplifier autant que possible sa reprise par les futur⋅es contributeurs⋅ices aux expériences de la thèse de Johan.
+L'objectif du stage était d'allier une extension du compilateur LLVM et une extension du simulateur gem5 pour prototyper une optimisation en co-conception logicielle/matérielle relative à la charge de travail du protocole de cohérence de caches. J'ai confirmé, par une preuve de concept, que l'idée est sensée, produit une amélioration des performances sur un exemple canonique où nous l'attendions, et qu'elle est implémentable dans ces outils de production périphériques au coeur de compétences de l'équipe. Mon analyse détaillée du fonctionnement de LLVM et gem5 m'a permis d'identifier précisément les outils déjà disponibles les plus pertinents (passe d'optimisation des accès mémoire, analyse d'alias, flag d'accès mémoire `READ_MODIFY_WRITE`) et de les mobiliser pour réaliser un prototype fonctionnel. Enfin, tout ce travail a été décemment documenté et packagé pour simplifier autant que possible sa reprise par les futur⋅e⋅s contributeur⋅ice⋅s aux expériences de la thèse de Johan.
 
 == Impressions
 
