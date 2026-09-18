@@ -66,8 +66,26 @@ Après avoir compilé ces binaires, on peut les déassembler, pour vérifier que
 
 Nous avons désormais préparé les deux versions compilées de notre binaire. Il ne reste plus qu'à exécuter ces 
 
-== quelques mots sur la doc + le packaging?
+== Documentation et distribution
+
+Le contexte de ce stage invitait doublement à ce que le travail accompli soit proprement documenté et packagé, d'une part car c'est un stage de recherche, et la reproductibilité des résultats de recherche (même non publiés ici) est cruciale pour le bon fonctionnement de la sciecnce ; et d'autre part car l'objectif était d'explorer des outils de production de code que l'équipe ne maîtrise pas en profondeur en interne.
+Il y a donc un objectif explicite que quelqu'un d'autre, par exemple Johan ou un⋅e autre stagiaire, puisse référencer le travail et reproduire les expériences pour les pousser plus loin dans le cadre de la thèse.
+
+En pratique, configurer et compiler LLVM et gem5 n'est pas trivial ; les grandes lignes sont documentées mais il y a de nombreuses options qui peuvent créer des maux de tête tels que : des compilations statiques consommant énormément d'espace disque ; des compilations en mode "Release" dans lequels l'option `-debug` est ignorée et toute l'introspection associée est indisponible ; ou encore des compilations pas assez parallèles prenant des heures ou trop parallèles crashant par manque de mémoire sur la machine de travail.
+De façon générale, #todo[sur le serveur approprié de TIMA], la compilation de Gem5 prend 1 heure initialement et 10 minutes à chaque itération après modification du code source, et LLVM prend également 1 heure à froid avec des itérations entre quelques secondes et quelques minutes selon les fichiers modifiés ; trouver les bons paramètres sans expertise préalable est donc un investissement chronophage qu'il est désirable de ne faire qu'une fois.
+
+La navigation dans ces grandes bases de code est aussi un produit du travail.
+LLVM contient plusieurs millions de lignes de C++ et TableGen, et la séparation du compilateur en de nombreuses passes sur plusieurs représentations n'empêche pas qu'il y a beaucoup de structures de données entremêlées et des états globaux implicites.
+Au-delà de la simple suite de commits, l'explication de quels fichiers ont été modifiés et quelles sont leurs contributions individuelles au système d'optimisation de lectures en cache facilitera grandement le travail des prochain⋅es.
+
+Reste un dernier problème d'ingénierie relatif aux variations entre les machines de développement.
+Le système de compilation de gem5 est fragile (car testé et diffusé principalement dans une image Docker spécifique) et LLVM a fréquemment des bugs sur sa branche `master`, donc il faut épingler une version spécifique ou un commit spécifique.
+
+
+  - nix à la rescousse:
+    - avoir un packaging hermétique
+    - permet de facilement pin des versions
+    - caching/distribution de builds built-in
+    - (bonus: distribuer des dev envs facilements)
 
 https://dl.acm.org/doi/abs/10.1145/2830168.2830172
-
-- honnêtement je sais pas quoi dire là .\_.
