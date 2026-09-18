@@ -15,9 +15,7 @@ Tous ces sous-projets partagent des outils de bases, comme un langage de spécif
   image("/assets/compiler-pipeline.svg", width: 100%)
 ) <fig_llvm_pipeline>
 
-Pour ce projet nous utilisons principalement le front-end C (clang), le middle-end (LLVM), et le back-end RISC-V.
-#todo[Pour des raisons techniques et hors de portée de ce rapport, on utilise la chaîne de compilation GNU (traditionnellement associée à GCC) pour faire l'édition des liens des programmes compilés.]
-La @fig_llvm_pipeline montre une vue globale des différentes étapes de compilation, similaire aux @fig_comp_pipeline et @fig_comp_opt mais instanciée sur LLVM spécifiquement.
+Pour ce projet nous utilisons principalement le front-end C (clang), le middle-end (LLVM), et le back-end RISC-V. La @fig_llvm_pipeline montre une vue globale des différentes étapes de compilation, similaire aux @fig_comp_pipeline et @fig_comp_opt mais instanciée sur LLVM spécifiquement.
 
 Le front-end clang compile le code source C vers la représentation intermédiaire la plus centrale de LLVM, _LLVM IR_, qui constitue le "middle-end" traditionnel, et où la majorité des optimisations complexes sont effectuées.
 Les autres représentations font techniquement partie du back-end mais s'appuient très largement sur des représentations et algorithmes génériques, plutôt que des techniques spécifiques à l'architecture RISC-V.

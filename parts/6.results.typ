@@ -1,8 +1,9 @@
+#import "@preview/lilaq:0.6.0" as lq
 #import "/utils.typ": *
 
 = Résultats <sec_results>
 
-Après ces presque 20 pages de rapport, de théorie, de conception, et de description d'implémentation, il est enfin temps de récolter les fruits de ces 5 mois de labour. Nous avons désormais un compilateur capable d'insérer nos instructions automatiquement grâce à une passe d'optimisation, _et_ une moyen de modéliser les performances de ce programme de manière déterministe. Dans cette section, nous allons donc suivre le chemin d'un petit programme d'évaluation, de sa conception à la mesure d'impact de l'optimisation. Nous discuterons aussi du réel objectif de ce stage : la documentation.
+Après ces presque 20 pages de rapport, de théorie, de conception, et de description d'implémentation, il est enfin temps de récolter les fruits de ces 5 mois de labeur. Nous avons désormais un compilateur capable d'insérer nos instructions automatiquement grâce à une passe d'optimisation, _et_ une moyen de modéliser les performances de ce programme de manière déterministe. Dans cette section, nous allons donc suivre le chemin d'un petit programme d'évaluation, de sa conception à la mesure d'impact de l'optimisation. Nous discuterons aussi du réel objectif de ce stage : la documentation.
 
 == Naissance d'un benchmark
 
@@ -25,11 +26,11 @@ La création d'un benchmark n'est pas une tâche triviale : lors d'une phase de 
   ```
 ] <lst_benchmark>
 
-À noter que, grâce à notre décision dans la @sec_design_input, nous n'avons pas besoin d'utiliser des ```c #ifdef``` pour ajouter des annotations optionnelles à désactiver pour pouvoir tester différentes variations du programme. En effet, ce sont exclusivement les options de ciblage qu'on aura données au compilateur qui vont déterminer si l'instruction est disponible (et donc l'optimisation associée devrait se déclencher) ou pas. De cette manière, le code source du programme est complètement inaffecté par ce détail, et, surtout, ne requiert aucune modification ou mise à jour pour prendre avantage des gains associés.
+À noter que, grâce à notre décision dans la @sec_design_input, nous n'avons pas besoin d'utiliser des ```c #ifdef``` pour ajouter des annotations optionnelles à désactiver pour pouvoir tester différentes variations du programme. En effet, ce sont exclusivement les options de ciblage qu'on aura données au compilateur qui vont déterminer si l'instruction est disponible (et donc l'optimisation associée devrait se déclencher) ou pas. De cette manière, le code source du programme est complètement inaffecté par ce détail, et, surtout, ne requiert aucune modification ou mise à jour pour tirer avantage des gains associés.
 
-Reste à admettre que ce benchmark est très loin d'être parfait : en plus d'être extrêmement synthétique, il est n'évalue à priori pas du tout la contribution de comportement multi-threadés, que nous avions pourtant utilisés pour introduire le problème des protocoles de caches. Cependant, il est important de souligner que l'inquiétude première ces travaux est simplement d'éviter des inefficacités dans les protocoles de cohérence quand il en vient au comportement d'un seul coeur. Si un coeur demande une ligne de cache en mode _Unique_ un peu plus vite qu'il ne l'aurait autrement fait, on ne devrait pas particulièrement s'attendre à ce que ça affecte les performances moyennes, même dans une situation multicoeur. On pourrait tout de même faire mieux, mais il y avait d'autres tâches sur lesquelles se concentrer, et ce programme était acceptable comme benchmark.
+Reste à admettre que ce benchmark est très loin d'être parfait : en plus d'être extrêmement synthétique, il est n'évalue _a priori_ pas du tout la contribution de comportement multi-threadés, que nous avions pourtant utilisés pour introduire le problème des protocoles de caches. Cependant, il est important de souligner que l'inquiétude première ces travaux est simplement d'éviter des inefficacités dans les protocoles de cohérence quand il en vient au comportement d'un seul coeur. Si un coeur demande une ligne de cache en mode exclusive un peu plus vite qu'il ne l'aurait autrement fait, on ne devrait pas particulièrement s'attendre à ce que ça affecte les performances moyennes, même dans une situation multicoeur. On pourrait tout de même faire mieux, mais il y avait d'autres tâches sur lesquelles se concentrer, et ce programme était acceptable comme benchmark.
 
-== Optimisation et génération de binaire de tests
+== Optimisation et génération de binaire de tests avec LLVM
 
 Comme discuté précédemment, nous n'avons pas besoin de modifier le programme pour activer ou désactiver cette optimisation. À la place, c'est maintenant, au moment de la compilation, que nous devons faire ce choix. Pour cela, nous pouvons simplement spécifier que notre cible de compilation support nos nouvelles instructions, avec `-march=rv64i_xstld`#footnote[Voir #far-footnote(<ft_vendor_ext>).], et l'optimisation s'activera toute seule. Pour générer un binaire sans cette optimisation, on peut alors simplement ne _pas_ spécifier `_xstld`.
 
@@ -62,9 +63,88 @@ Après avoir compilé ces binaires, on peut les déassembler, pour vérifier que
   ```
 ] <fig_decomp_diff>
 
-== speedup avec gem5
+== Mesure de performances avec gem5
 
-Nous avons désormais préparé les deux versions compilées de notre binaire. Il ne reste plus qu'à exécuter ces 
+Nous avons désormais préparé les deux versions compilées de notre binaire. Il ne reste plus qu'à mesurer leurs performances avec gem5. Pour cela, nous utiliserons une configuration très similaire au @lst_final_gem5_conf, en utilisant le @lst_base_gem5_run (avec bien sûr un changement de nom de binaire) pour charger le binaire lancer la simulation.
+
+#let ft_m5reader = [
+  Celui-ci est dans un format textuel _ad-hoc_ plus ou moins structuré, mais il n'est pas difficile d'écrire un petit programme qui convertit fidellement ses données au format JSON. Nous n'irons pas dans les détails dans ce rapport, mais avoir ces statistiques sous une forme plus structurées est extrêmement, et permet d'automatiser une plus grande partie de ces mesures.
+]
+
+Les résultats de la simulation qui nous intéressent le plus ici, ce sont les statistiques enregistrées dans le fichier `m5out/stats.txt`#footnote(ft_m5reader) généré par gem5. Celui-ci contient une quantité impensable d'information minutieuse sur chaque compoasnt du système ; nous nous intéressons surtout à :
+  - *`simTicks`*, qui nous rapporte le nombre de "ticks" de simulation se sont écoulés pendant l'exécution de notre programme ; avec une fréquence de 1 GHz, un cycle d'horloge de CPU équivaut exactement à 100 ticks.
+  - *`SendReadShared`* et *`SendReadUnique`*, qui indiquent, respectivement, le nombre de requêtes pour des lignes partagées et exclusives dans le cache.
+  - *`reqOut.m_msg_count`*, qui représente le nombre de messages ayant été échangés dans le système de cache
+
+Ce qu'on attend de ces statistiques, c'est que le nombre de messages échangés diminue (c'est, après tout, le but ultime de cette optimisation), que le nombre de requêtes uniques augmentent pendant que le nombre de requêtes partagées diminue, et enfin que le temps total d'exécution, représenté par le nombre de ticks, diminue. À noter également que la somme des requêtes partagés vs. uniques ne devrait pas être la même entre les deux exécutions, car la version "non-optimisée" fait justement des requêtes partagés qui sont ensuite transformées en uniques.
+
+La @fig_bench_stats compare ces statistiques pour 
+
+#figure(
+  caption: [
+    De gauche à droite : nombre total de ticks de simulation (en milliards), de requêtes de lignes partagées, de requêtes de ligne exclusives, et de messages de cohérence (chacun en centaine de milliers)
+  ], {
+    let old = (
+      10.1217111000, // simTicks
+      14.7603, // SendReadShared
+      13.1075, // SendReadUnique
+      63.5215, // msg_count
+    )
+    let new = (
+      9.9676589000, // simTicks
+      8.2066,  // SendReadShared
+      19.6612, // SendReadUnique
+      57.0107, // msg_count
+    )
+    let xs = range(4)
+
+    lq.diagram(
+      legend: (position: left + top),
+
+      width: 70%,
+      margin: (top: 20%),
+
+      yaxis: none,
+      xaxis: (
+        ticks: ("Ticks", "Partagées", "Exclusives", "Messages").enumerate(),
+        position: bottom
+      ),
+
+      lq.bar(
+        offset: -0.2,
+        width: 0.4,
+        label: [Non-optimisé],
+        range(4),
+        old,
+      ),
+      lq.bar(
+        offset: 0.2,
+        width: 0.4,
+        label: [Optimisé],
+        range(4),
+        new,
+      ),
+
+      ..xs.zip(old).map(((x, y)) => {
+        let num = place(dx: 0pt, pad(0.2em)[
+          #set text(size: 11pt)
+          #show: place.with(dx: -1.05cm, dy: -.5cm)
+          #calc.round(y, digits: 2)
+        ])
+        lq.place(x, y, num, align: top)
+      }),
+
+      ..xs.zip(new).map(((x, y)) => {
+        let num = place(dx: 0pt, pad(0.2em)[
+          #set text(size: 11pt)
+          #show: place.with(dx: 0.05cm, dy: -.5cm)
+          #calc.round(y, digits: 2)
+        ])
+        lq.place(x, y, num, align: top + center)
+      })
+    )
+  }
+) <fig_bench_stats>
 
 == Documentation et distribution
 

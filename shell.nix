@@ -25,6 +25,7 @@ let
       pkgs.libertinus
     ];
     typstEnv = universe: with universe; [
+      lilaq
     ];
   };
 in
