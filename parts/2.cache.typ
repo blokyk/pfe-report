@@ -65,9 +65,8 @@ Des caches privés évitent ces problèmes, en plaçant chaque coeur au contrôl
 == La communication, c'est important <sec_cache_protocols>
 
 Il est donc essentiel de trouver un moyen de résoudre ce problème d'incohérence entre les deux caches. La solution évidente est de faire communiquer ces deux caches "privés", avec un _protocole de cohérence de cache_. Il existe une grande quantité de protocoles, selon les propriétés de cohérence requises, les performances attendues, ou même l'implémentation exacte de chaque cache, mais globalement les protocoles s'assurent que :
-
-- Les écritures dans un cache sont visibles par tous les caches, immédiatement ou à la demande
-- Les accès à une même donnée en mémoire s'exécutent comme s'ils étaient séquentiels
+  - Les écritures dans un cache sont visibles par tous les caches, immédiatement ou à la demande
+  - Les accès à une même donnée en mémoire s'exécutent comme s'ils étaient séquentiels
 
 Dans le contexte de la thèse de Johan en général et donc de ce stage en particulier, on suppose un protocole "par répertoire" dans lequel un répertoire central traque quels caches ont des copies de quelles lignes, si les lignes ont été modifiées, et d'autres propriétés nécessaires à déclencher les transferts entre-cache dès que nécessaire.
 Concrètement, chaque ligne a un "état" (accès exclusif et pas modifiée, accès exclusif et modifiée, accès partagé...) et chaque accès mémoire par un coeur dans le système provoque des transitions d'état potentiellement accompagnées de propagation des modifications d'un cache aux autres.
