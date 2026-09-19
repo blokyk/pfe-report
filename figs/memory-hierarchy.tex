@@ -1,0 +1,42 @@
+\documentclass{standalone}
+
+\usepackage{libertinus}
+\usepackage[T1]{fontenc}
+\renewcommand*\familydefault{\sfdefault}
+
+\usepackage{DejaVuSansMono}
+
+\usepackage{tikz}
+\usetikzlibrary{decorations.pathmorphing, decorations.pathreplacing, decorations.shapes}
+\tikzset{every path/.style={semithick}}
+
+\begin{document}
+  \begin{tikzpicture}
+    \draw (0,4.5) node[text depth=0.2ex] {Registres};
+    \draw (0,3.5) node[text depth=0.2ex] {Cache « sur puce »};
+    \draw (0,2.5) node[text depth=0.2ex] {Cache « hors puce »};
+    \draw (0,1.5) node[text depth=0.2ex] {Mémoire centrale};
+    \draw (0,0.5) node[text depth=0.2ex] {Stockage persistant};
+
+    \draw (-1,5) -- (-3,0) -- (3,0) -- (1,5) -- cycle;
+    \draw (-1.4,4) -- (1.4,4);
+    \draw (-1.8,3) -- (1.8,3);
+    \draw (-2.2,2) -- (2.2,2);
+    \draw (-2.6,1) -- (2.6,1);
+
+    \draw (-1.5,4.5) node[text depth=0.2ex, left] {< 1 kio};
+    \draw (-1.9,3.5) node[text depth=0.2ex, left] {32 kio};
+    \draw (-2.3,2.5) node[text depth=0.2ex, left] {16 Mio};
+    \draw (-2.7,1.5) node[text depth=0.2ex, left] {32 Gio};
+    \draw (-3.1,0.5) node[text depth=0.2ex, left] {1 Tio};
+
+    \draw (1.5,4.5) node[text depth=0.2ex, right] {> 100 Go/s};
+    \draw (1.9,3.5) node[text depth=0.2ex, right] {50 Go/s};
+    \draw (2.3,2.5) node[text depth=0.2ex, right] {5 Go/s};
+    \draw (2.7,1.5) node[text depth=0.2ex, right, align=left] {50 Go/s \\[-2pt] \small\it (latence élevée)};
+    \draw (3.1,0.5) node[text depth=0.2ex, right] {2 Go/s};
+
+    \draw[->] (-4.5,5) -- ++(0,-5) node[above left,align=right] {Taille \\[-2pt] \small\it (ordre d'idée)};
+    \draw[->] (5,0) -- ++(0,5) node[below right,align=left] {Vitesse \\[-2pt] \small\it (ordre d'idée)};
+  \end{tikzpicture}
+\end{document}
